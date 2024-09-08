@@ -8,6 +8,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Validator;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Http;
+
    
 class RegisterController extends BaseController
 {
@@ -56,5 +58,31 @@ class RegisterController extends BaseController
         else{ 
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
         } 
+    }
+
+
+
+    public function sendSms()
+    {
+        $apiKey = '8DUyL51bGqH30aTO26Kki9fVBdIgtMSCJFzXmQA4lRusrn7pjPZnUhbCSBa52OykEeN4pqtfVjTFYx76';
+        $url = 'https://www.fast2sms.com/dev/bulkV2';
+
+        // Define the request payload
+        $fields = [
+            'variables_values' => '5599',
+            'route' => 'otp',
+            'numbers' => '7708468980',
+        ];
+
+        // Make the POST request
+        $response = Http::withHeaders([
+            'authorization' => $apiKey,
+            'accept' => '*/*',
+            'cache-control' => 'no-cache',
+            'content-type' => 'application/json',
+        ])->post($url, $fields);
+
+
+        return $response->body();
     }
 }
