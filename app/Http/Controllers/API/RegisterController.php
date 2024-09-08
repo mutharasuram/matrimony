@@ -64,7 +64,7 @@ class RegisterController extends BaseController
 
     public function sendSms()
     {
-        $apiKey = '8DUyL51bGqH30aTO26Kki9fVBdIgtMSCJFzXmQA4lRusrn7pjPZnUhbCSBa52OykEeN4pqtfVjTFYx76';
+        $apiKey = 'F4geDxsyK7EVGXtqrMhbY3fUBludwaQIcTH8LJ5ZW2Nj1i9kP0wfC4YlsZgvHz0aKexmD8ic67SudhUk';
         $url = 'https://www.fast2sms.com/dev/bulkV2';
 
         // Define the request payload
