@@ -21,6 +21,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'mobile',
+        'm_id'
     ];
 
     /**
@@ -44,5 +46,24 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public static function isMobileExist($number)
+    {
+        return self::where('mobile', $number)->exists();
+    }
+
+    public static function isEmailExist($email)
+    {
+        return self::where('email', $email)->exists();
+    }
+
+    public static function generateUniqueMId()
+    {
+        do {
+            $m_id = 'mv' . mt_rand(10000, 999999);
+        } while (self::where('m_id', $m_id)->exists());
+
+        return $m_id;
     }
 }

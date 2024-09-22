@@ -10,6 +10,8 @@ Route::controller(RegisterController::class)->group(function(){
     Route::post('register', 'register');
     Route::post('login', 'login');
     Route::post('sendSms', 'sendSms');
+    Route::post('verifyOtp', 'verifyOtp');
+    Route::post('checkIsExist', 'checkIsExist');
 });
          
 Route::middleware('auth:sanctum')->group( function () {
