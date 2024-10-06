@@ -6,10 +6,12 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\Otp;
 use App\Models\User;
+use App\Models\Profile;
 use Illuminate\Support\Facades\Auth;
 use Validator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
 
 class RegisterController extends BaseController
 {
@@ -20,26 +22,96 @@ class RegisterController extends BaseController
      */
     public function register(Request $request): JsonResponse
     {
+        DB::beginTransaction();
         try {
             $validator = Validator::make($request->all(), [
                 'name' => 'required',
-                'email' => 'required|email',
+                'email' => 'required|email|unique:users,email',
                 'password' => 'required',
-                'mobile' => 'required|string|max:15',
+                'mobile' => 'required|string|max:15|unique:users,mobile',
+                // Profile-related validation rules
+                'profile_created_by' => 'required|in:self,parent,sibling,relative,friend',
+                'gender' => 'required|in:male,female',
+                'dob' => 'required|date',
+                'mother_tongue' => 'required|string|max:255',
+                'subcaste' => 'nullable|string|max:255',
+                'sub_caste_details' => 'nullable|string|max:255',
+                'willing_to_marry_from_subcaste' => 'required|in:yes,no',
+                'marital_status' => 'required|in:Unmarried,Widower,Divorced,Separated',
+                'country_living_in' => 'required|string|max:255',
+                'residing_state' => 'required|string|max:255',
+                'residing_city' => 'required|string|max:255',
+                'citizenship' => 'required|string|max:255',
+                'height' => 'required|string|max:255',
+                'education' => 'required|string|max:255',
+                'employed_in' => 'nullable|string|max:255',
+                'occupation' => 'nullable|string|max:255',
+                'annual_income' => 'nullable|string|max:255',
+                'physical_status' => 'required|in:normal,physically_challenged',
+                'family_status' => 'required|in:middle_class,upper_middle_class,rich_affluent',
+                'family_type' => 'required|in:joint_family,nuclear_family',
+                'about_me' => 'nullable|string',
+                'dosham' => 'required|in:yes,no,donot_know',
+                'star_nakshatram' => 'nullable|string|max:255',
+                'rasi' => 'nullable|string|max:255',
+                'gothram' => 'nullable|string|max:255',
+                'time_of_birth' => 'nullable|date_format:H:i',
+                'country_of_birth' => 'nullable|string|max:255',
+                'state_of_birth' => 'nullable|string|max:255',
+                'city_of_birth' => 'nullable|string|max:255',
+                'horoscope_chart_style' => 'nullable|string|max:255',
             ]);
 
             if ($validator->fails()) {
                 return $this->sendError('Validation Error.', $validator->errors());
             }
+
             $mId = User::generateUniqueMId();
             $input = $request->all();
             $input['password'] = bcrypt($input['password']);
             $input['m_id'] = $mId;
             $user = User::create($input);
+            $profileData = $request->only([
+                'profile_created_by',
+                'gender',
+                'name',
+                'dob',
+                'mother_tongue',
+                'subcaste',
+                'sub_caste_details',
+                'willing_to_marry_from_subcaste',
+                'marital_status',
+                'country_living_in',
+                'residing_state',
+                'residing_city',
+                'citizenship',
+                'height',
+                'education',
+                'employed_in',
+                'occupation',
+                'annual_income',
+                'physical_status',
+                'family_status',
+                'family_type',
+                'about_me',
+                'dosham',
+                'star_nakshatram',
+                'rasi',
+                'gothram',
+                'time_of_birth',
+                'country_of_birth',
+                'state_of_birth',
+                'city_of_birth',
+                'horoscope_chart_style'
+            ]);
+            $profileData['user_id'] = $user->id;
+            Profile::create($profileData);
             $success['token'] =  $user->createToken('auth_token')->plainTextToken;
-            $success['name'] =  $user->name;
+            $success['user'] =  User::with('profile')->where('id', $user->id)->first();
+            DB::commit();
             return $this->sendResponse($success, 'User register successfully.');
         } catch (\Exception $e) {
+            DB::rollBack();
             return $this->sendError('Error', $e->getMessage());
         }
     }
@@ -51,23 +123,27 @@ class RegisterController extends BaseController
      */
     public function login(Request $request): JsonResponse
     {
-        if (Auth::attempt(['email' => $request->value, 'password' => $request->password])) {
-            $user = Auth::user();
-            $success['token'] =  $user->createToken('auth_token')->plainTextToken;
-            $success['name'] =  $user->name;
-            return $this->sendResponse($success, 'User login successfully.');
-        } else if (Auth::attempt(['m_id' => $request->value, 'password' => $request->password])) {
-            $user = Auth::user();
-            $success['token'] =  $user->createToken('auth_token')->plainTextToken;
-            $success['name'] =  $user->name;
-            return $this->sendResponse($success, 'User login successfully.');
-        } else if (Auth::attempt(['mobile' => $request->value, 'password' => $request->password])) {
-            $user = Auth::user();
-            $success['token'] =  $user->createToken('auth_token')->plainTextToken;
-            $success['name'] =  $user->name;
-            return $this->sendResponse($success, 'User login successfully.');
-        } else {
-            return $this->sendError('Unauthorised.', ['error' => 'Unauthorised']);
+        try {
+            if (Auth::attempt(['email' => $request->value, 'password' => $request->password])) {
+                $user = Auth::user();
+                $success['token'] =  $user->createToken('auth_token')->plainTextToken;
+                $success['name'] =  User::with('profile')->where('id', $user->id)->first();
+                return $this->sendResponse($success, 'User login successfully.');
+            } else if (Auth::attempt(['m_id' => $request->value, 'password' => $request->password])) {
+                $user = Auth::user();
+                $success['token'] =  $user->createToken('auth_token')->plainTextToken;
+                $success['name'] =  User::with('profile')->where('id', $user->id)->first();
+                return $this->sendResponse($success, 'User login successfully.');
+            } else if (Auth::attempt(['mobile' => $request->value, 'password' => $request->password])) {
+                $user = Auth::user();
+                $success['token'] =  $user->createToken('auth_token')->plainTextToken;
+                $success['user'] =  User::with('profile')->where('id', $user->id)->first();
+                return $this->sendResponse($success, 'User login successfully.');
+            } else {
+                return $this->sendError('Unauthorised.', ['error' => 'Unauthorised']);
+            }
+        } catch (\Exception $e) {
+            return $this->sendError('Error', $e->getMessage());
         }
     }
 
@@ -78,7 +154,7 @@ class RegisterController extends BaseController
         try {
             $apiKey = env('FAST2SMS_API_KEY');
             $url = env('FAST2SMS_URL');
-            $otp = rand(1000, 9999);
+            $otp = rand(100000, 999999);
             $fields = [
                 'variables_values' => $otp,
                 'route' => 'otp',
@@ -95,6 +171,8 @@ class RegisterController extends BaseController
             $responseBody = json_decode($response->body());
 
             if ($responseBody && $responseBody->return) {
+                Otp::where('mobile', $request->mobile)
+                    ->delete();
                 Otp::create(['mobile' => $request->mobile, 'otp' => $otp]);
                 return $this->sendResponse($responseBody, 'OTP sent successfully.');
             } else {
@@ -111,7 +189,7 @@ class RegisterController extends BaseController
 
             $request->validate([
                 'mobile' => 'required|string',
-                'otp' => 'required|digits:4',
+                'otp' => 'required|digits:6',
             ]);
 
             $otpRecord = Otp::where('mobile', $request->mobile)
@@ -160,6 +238,31 @@ class RegisterController extends BaseController
                 return $this->sendError('Invalid type', ['error' => 'Invalid type']);
             }
         } catch (\Exception $e) {
+            return $this->sendError('Error', ['error' => $e->getMessage()]);
+        }
+    }
+
+    public function updatePassword(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($request->all(), [
+                'mobile' => 'required|string',
+                'password' => 'required|string',
+            ]);
+            if ($validator->fails()) {
+                return $this->sendError('Validation Error.', $validator->errors());
+            }
+            $user = User::where('mobile', $request->mobile)->first();
+            if (!$user) {
+                return $this->sendError('User not found.', ['error' => 'User not found']);
+            }
+            $user->password = bcrypt($request->password);
+            $user->save();
+            DB::commit();
+            return $this->sendResponse(true, 'Password updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
             return $this->sendError('Error', ['error' => $e->getMessage()]);
         }
     }

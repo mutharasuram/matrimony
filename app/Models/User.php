@@ -61,9 +61,15 @@ class User extends Authenticatable
     public static function generateUniqueMId()
     {
         do {
-            $m_id = 'mv' . mt_rand(10000, 999999);
+            $timestamp = (int)(microtime(true));
+            $m_id = 'mv' . $timestamp . mt_rand(1000, 99999);
         } while (self::where('m_id', $m_id)->exists());
 
         return $m_id;
+    }
+
+    public function profile()
+    {
+        return $this->hasOne(Profile::class);
     }
 }
