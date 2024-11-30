@@ -267,3 +267,42 @@ class RegisterController extends BaseController
         }
     }
 }
+
+// register mock data
+
+// {
+//     "name": "Mutharasu",
+//     "email": "mutharasuram0@gmail.com",
+//     "password": "Test@123",
+//     "mobile": "7708468980",
+//     "profile_created_by": "self",
+//     "gender": "male",
+//     "dob": "1990-01-01",
+//     "mother_tongue": "English",
+//     "subcaste": "Example Subcaste",
+//     "sub_caste_details": "Details about the subcaste",
+//     "willing_to_marry_from_subcaste": "yes",
+//     "marital_status": "Unmarried",
+//     "country_living_in": "United States",
+//     "residing_state": "California",
+//     "residing_city": "Los Angeles",
+//     "citizenship": "American",
+//     "height": "5.9",
+//     "education": "Masters in Computer Science",
+//     "employed_in": "Private Sector",
+//     "occupation": "Software Engineer",
+//     "annual_income": "100000",
+//     "physical_status": "normal",
+//     "family_status": "middle_class",
+//     "family_type": "nuclear_family",
+//     "about_me": "I am a software engineer looking for a compatible partner.",
+//     "dosham": "no",
+//     "star_nakshatram": "Ashwini",
+//     "rasi": "Aries",
+//     "gothram": "Example Gothram",
+//     "time_of_birth": "10:30",
+//     "country_of_birth": "United States",
+//     "state_of_birth": "California",
+//     "city_of_birth": "Los Angeles",
+//     "horoscope_chart_style": "South Indian"
+//   }
