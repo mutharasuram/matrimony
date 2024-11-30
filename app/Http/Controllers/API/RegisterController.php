@@ -267,3 +267,60 @@ class RegisterController extends BaseController
         }
     }
 }
+
+// register mock data
+
+// {
+//     "success": true,
+//     "data": {
+//         "token": "14|RtQDwTsrZjf6hygncGxZvn8Ky4RnL9F7xuKHCBwQ752c5c03",
+//         "user": {
+//             "id": 11,
+//             "name": "Mutharasu",
+//             "email": "mutharasuram0@gmail.com",
+//             "email_verified_at": null,
+//             "created_at": "2024-11-30T17:22:33.000000Z",
+//             "updated_at": "2024-11-30T17:22:33.000000Z",
+//             "mobile": "7708468980",
+//             "m_id": "mv173298735334926",
+//             "profile": {
+//                 "id": 7,
+//                 "user_id": 11,
+//                 "profile_created_by": "self",
+//                 "gender": "male",
+//                 "name": "Mutharasu",
+//                 "dob": "1990-01-01",
+//                 "mother_tongue": "English",
+//                 "subcaste": "Example Subcaste",
+//                 "willing_to_marry_from_subcaste": "yes",
+//                 "marital_status": "Unmarried",
+//                 "country_living_in": "United States",
+//                 "residing_state": "California",
+//                 "residing_city": "Los Angeles",
+//                 "citizenship": "American",
+//                 "height": "5.9",
+//                 "education": "Masters in Computer Science",
+//                 "employed_in": "Private Sector",
+//                 "occupation": "Software Engineer",
+//                 "annual_income": "100000",
+//                 "physical_status": "normal",
+//                 "family_status": "middle_class",
+//                 "family_type": "nuclear_family",
+//                 "about_me": "I am a software engineer looking for a compatible partner.",
+//                 "dosham": "no",
+//                 "star_nakshatram": "Ashwini",
+//                 "rasi": "Aries",
+//                 "gothram": "Example Gothram",
+//                 "time_of_birth": "10:30:00",
+//                 "country_of_birth": "United States",
+//                 "state_of_birth": "California",
+//                 "city_of_birth": "Los Angeles",
+//                 "horoscope_chart_style": "South Indian",
+//                 "created_at": "2024-11-30T17:22:33.000000Z",
+//                 "updated_at": "2024-11-30T17:22:33.000000Z",
+//                 "sub_caste_details": "Details about the subcaste"
+//             }
+//         }
+//     },
+//     "message": "User register successfully."
+// }
