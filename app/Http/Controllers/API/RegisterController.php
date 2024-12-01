@@ -12,9 +12,23 @@ use Validator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
+use App\Services\MatchesService;
 
 class RegisterController extends BaseController
 {
+
+    protected $matchesService;
+
+    /**
+     * MatchesController constructor.
+     *
+     * @param MatchesService $matchesService
+     */
+    public function __construct(MatchesService $matchesService)
+    {
+        $this->matchesService = $matchesService;
+    }
+
     /**
      * Register api
      *
@@ -128,16 +142,19 @@ class RegisterController extends BaseController
                 $user = Auth::user();
                 $success['token'] =  $user->createToken('auth_token')->plainTextToken;
                 $success['name'] =  User::with('profile')->where('id', $user->id)->first();
+                $success['list'] = $this->matchesService->getJustJoined($user->id);
                 return $this->sendResponse($success, 'User login successfully.');
             } else if (Auth::attempt(['m_id' => $request->value, 'password' => $request->password])) {
                 $user = Auth::user();
                 $success['token'] =  $user->createToken('auth_token')->plainTextToken;
                 $success['name'] =  User::with('profile')->where('id', $user->id)->first();
+                $success['list'] = $this->matchesService->getJustJoined($user->id);
                 return $this->sendResponse($success, 'User login successfully.');
             } else if (Auth::attempt(['mobile' => $request->value, 'password' => $request->password])) {
                 $user = Auth::user();
                 $success['token'] =  $user->createToken('auth_token')->plainTextToken;
                 $success['user'] =  User::with('profile')->where('id', $user->id)->first();
+                $success['list'] = $this->matchesService->getJustJoined($user->id);
                 return $this->sendResponse($success, 'User login successfully.');
             } else {
                 return $this->sendError('Unauthorised.', ['error' => 'Unauthorised']);
@@ -146,8 +163,6 @@ class RegisterController extends BaseController
             return $this->sendError('Error', $e->getMessage());
         }
     }
-
-
 
     public function sendSms(Request $request)
     {
