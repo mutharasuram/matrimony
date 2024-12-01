@@ -50,4 +50,9 @@ class Profile extends Model
     {
         return $this->belongsTo(User::class);
     }
+    
+    public function profileImg()
+    {
+        return $this->belongsTo(ProfileImg::class, 'profile_img_id', 'id');
+    }
 }
