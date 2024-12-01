@@ -40,7 +40,7 @@ class Shortlist extends Model
      */
     public static function iShortlisted(int $userId)
     {
-        return self::where('user_id', $userId)->with('shortlistedUser')->get();
+        return self::where('user_id', $userId)->with('shortlistedUser','shortlistedUser.profile', 'shortlistedUser.profile.images')->get();
     }
 
     /**
