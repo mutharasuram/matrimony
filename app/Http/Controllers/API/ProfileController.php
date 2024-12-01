@@ -7,6 +7,7 @@ use App\Models\ProfileImg;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
+use App\Models\Shortlist;
 
 class ProfileController extends BaseController
 {
@@ -67,7 +68,8 @@ class ProfileController extends BaseController
             $id = $request->id;
             $userData = User::with('profile')->where('id', $id)->first();
             if (!$userData || !$userData->profile) {
-                return response()->json(['error' => 'User profile not found.'], 404);
+                return $this->sendError('User profile not found.', array(), 404);
+
             }
             $uploadedFiles = $request->file('profile_img');
             if (!is_array($uploadedFiles)) {
@@ -87,8 +89,41 @@ class ProfileController extends BaseController
                 }
             }
             return $this->sendResponse($storedImages, 'Profile Images uploaded successfully!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return $this->sendError('Validation Error', $e->errors(), 422);
         } catch (\Exception $e) {
             return $this->sendError('Error uploading profile images.', ['error' => $e->getMessage()], 404);
         }
     }
+    public function Shortlist(Request $request)
+{
+    try {
+        $validatedData = $request->validate([
+            'id' => 'required', 
+            'shorted_id' => 'required', 
+        ]);
+        $id = $request->id;
+        $shorted_id = $request->shorted_id;
+        $short_data = Shortlist::where(['user_id' => $id, 'shorted_id' => $shorted_id])->first();
+        if ($short_data) {
+            $data = Shortlist::where([
+                'user_id' => $id,
+                'shorted_id' => $shorted_id
+            ])->delete();
+           $item='true';
+            return $this->sendResponse($item, 'Shortlisted Profile Removed successfully!');
+        } else {
+            $data = Shortlist::insert([
+                'user_id' => $id,
+                'shorted_id' => $shorted_id
+            ]);
+            $item='true';
+            return $this->sendResponse($item, 'Shortlisted Profile added successfully!');
+        }
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return $this->sendError('Validation Error', $e->errors(), 422);
+    } catch (\Exception $e) {
+        return $this->sendError('Error processing request.', ['error' => $e->getMessage()], 500);
+    }
+}
 }

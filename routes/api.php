@@ -19,5 +19,6 @@ Route::controller(RegisterController::class)->group(function(){
 // Route::middleware('auth:sanctum')->group( function () {
     Route::get('matches', [MatchesController::class, 'index']);
     Route::Post('image_upload', [ProfileController::class, 'profile_img_store']);
+    Route::Post('Shortlist', [ProfileController::class, 'Shortlist']);
 
 // });
