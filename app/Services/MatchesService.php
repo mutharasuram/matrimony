@@ -21,7 +21,7 @@ class MatchesService
         $userData = User::with('profile')->where('id', $id)->first();
         $gender = $userData->profile->gender ?? 'male';
         $oppositeGender = $gender == 'male' ? 'female' : 'male';
-        $users = User::with('profile')
+        $users = User::with('profile','profile.images')
             ->whereHas('profile', function ($query) use ($oppositeGender) {
                 $query->where('gender', $oppositeGender);
             })

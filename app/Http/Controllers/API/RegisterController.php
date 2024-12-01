@@ -121,7 +121,8 @@ class RegisterController extends BaseController
             $profileData['user_id'] = $user->id;
             Profile::create($profileData);
             $success['token'] =  $user->createToken('auth_token')->plainTextToken;
-            $success['user'] =  User::with('profile')->where('id', $user->id)->first();
+            $success['user'] =  User::with('profile','profile.images')->where('id', $user->id)->first();
+            $success['list'] = $this->matchesService->getJustJoined($user->id);
             DB::commit();
             return $this->sendResponse($success, 'User register successfully.');
         } catch (\Exception $e) {
@@ -141,19 +142,19 @@ class RegisterController extends BaseController
             if (Auth::attempt(['email' => $request->value, 'password' => $request->password])) {
                 $user = Auth::user();
                 $success['token'] =  $user->createToken('auth_token')->plainTextToken;
-                $success['name'] =  User::with('profile')->where('id', $user->id)->first();
+                $success['user'] =  User::with('profile','profile.images')->where('id', $user->id)->first();
                 $success['list'] = $this->matchesService->getJustJoined($user->id);
                 return $this->sendResponse($success, 'User login successfully.');
             } else if (Auth::attempt(['m_id' => $request->value, 'password' => $request->password])) {
                 $user = Auth::user();
                 $success['token'] =  $user->createToken('auth_token')->plainTextToken;
-                $success['name'] =  User::with('profile')->where('id', $user->id)->first();
+                $success['user'] =  User::with('profile','profile.images')->where('id', $user->id)->first();
                 $success['list'] = $this->matchesService->getJustJoined($user->id);
                 return $this->sendResponse($success, 'User login successfully.');
             } else if (Auth::attempt(['mobile' => $request->value, 'password' => $request->password])) {
                 $user = Auth::user();
                 $success['token'] =  $user->createToken('auth_token')->plainTextToken;
-                $success['user'] =  User::with('profile')->where('id', $user->id)->first();
+                $success['user'] =  User::with('profile','profile.images')->where('id', $user->id)->first();
                 $success['list'] = $this->matchesService->getJustJoined($user->id);
                 return $this->sendResponse($success, 'User login successfully.');
             } else {
