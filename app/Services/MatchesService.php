@@ -18,7 +18,15 @@ class MatchesService
     public function getJustJoined()
     {
         $userGender = Auth::user()->gender;
-        $users = User::where('gender', '!=', $userGender)->orderBy('created_at', 'desc')->take(20)->get();
+        $oppositeGender = $userGender == 'male' ? 'female' : 'male';
+        $users = User::with('profile')
+            ->whereHas('profile', function ($query) use ($oppositeGender) {
+                $query->where('gender', $oppositeGender);
+            })
+            ->orderBy('created_at', 'desc')
+            ->take(20)
+            ->get();
+
         return $users;
     }
 }
