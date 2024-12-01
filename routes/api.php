@@ -15,6 +15,6 @@ Route::controller(RegisterController::class)->group(function(){
     Route::post('updatePassword', 'updatePassword');
 });
          
-Route::middleware('auth:sanctum')->group( function () {
+// Route::middleware('auth:sanctum')->group( function () {
     Route::get('matches', [MatchesController::class, 'index']);
-});
+// });

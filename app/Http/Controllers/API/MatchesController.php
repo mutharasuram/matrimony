@@ -23,9 +23,18 @@ class MatchesController extends BaseController
     public function index(Request $request)
     {
         $type = $request->type;
+        $userId = $request->id;
         switch ($type) {
             case 'just_joined':
-                $matches = $this->matchesService->getJustJoined();
+                $matches = $this->matchesService->getJustJoined($userId);
+                return $this->sendResponse($matches, 'Matches retrieved successfully.');
+                break;
+            case 'matches':
+                $matches = $this->matchesService->getMatches($userId);
+                return $this->sendResponse($matches, 'Matches retrieved successfully.');
+                break;
+            case 'nearby':
+                $matches = $this->matchesService->getNearBy($userId);
                 return $this->sendResponse($matches, 'Matches retrieved successfully.');
                 break;
             default:
