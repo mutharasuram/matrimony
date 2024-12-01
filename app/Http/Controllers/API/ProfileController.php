@@ -1,11 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
 use App\Models\Profile;
+use App\Models\ProfileImg;
+use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Controllers\API\BaseController as BaseController;
 
-class ProfileController extends Controller
+class ProfileController extends BaseController
 {
     public function store(Request $request)
     {
@@ -52,4 +55,50 @@ class ProfileController extends Controller
             'profile' => $profile
         ], 201);
     }
+    public function profile_img_store(Request $request)
+    {
+        try {
+            $validatedData = $request->validate([
+                'id' => 'required',
+                'profile_img' => 'required|array', 
+                'profile_img.*' => 'image|mimes:jpeg,png,jpg,svg', 
+            ]);
+            $id = $request->id;
+            $userData = User::with('profile')->where('id', $id)->first();
+           
+            if (!$userData || !$userData->profile) {
+                return response()->json(['error' => 'User profile not found.'], 404);
+            }
+            $uploadedFiles = $request->file('profile_img');
+            if (!is_array($uploadedFiles)) {
+                $uploadedFiles = [$uploadedFiles];
+            }
+            $storedImages = [];
+            foreach ($uploadedFiles as $image) {
+                $path = $image->store('profile_images', 'public');
+                $storedImages[] = $path;
+                ProfileImg::Insert([
+                    'profile_id' => $userData->profile->id,
+                    'img_path' => $path,
+                    'created_at' => now(),
+                ]);
+            }
+            return response()->json([
+                'success' => true,
+                'message' => 'Images uploaded successfully!',
+                'uploaded_images' => $storedImages,
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'errors' => $e->errors(), 
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An unexpected error occurred.',
+            ], 500);
+        }
+    }
+    
 }
