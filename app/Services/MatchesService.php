@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Shortlist;
 use App\Models\User;
 use DateTime;
 use Illuminate\Support\Facades\Auth;
@@ -119,5 +120,28 @@ class MatchesService
             ->get();
 
         return $users;
+    }
+    public function getshortedlist($id)
+    {
+        $shortlisted = Shortlist::iShortlisted($id);
+        if ($shortlisted->isNotEmpty()) {
+            return $shortlisted->map(function ($item) {
+                return $item->shortlistedUser;
+            });
+        }
+        return $shortlisted;
+    }
+    
+    public function getshortedby($id){
+        $userData = User::with('profile')->where('id', $id)->first();
+        $gender = $userData->profile->gender ?? 'male';
+        $oppositeGender = $gender == 'male' ? 'female' : 'male';
+        $users = User::with('profile', 'profile.images')
+            ->whereHas('profile', function ($query) use ($oppositeGender) {
+                $query->where('gender', $oppositeGender);
+            })
+            ->orderBy('created_at', 'desc')
+            ->take(20)
+            ->get();
     }
 }

@@ -37,6 +37,14 @@ class MatchesController extends BaseController
                 $matches = $this->matchesService->getNearBy($userId);
                 return $this->sendResponse($matches, 'Matches retrieved successfully.');
                 break;
+            case 'shortedlist':
+                $matches = $this->matchesService->getshortedlist($userId);
+                return $this->sendResponse($matches, 'Matches retrieved successfully.');
+                break;
+            case 'shortedby':
+                $matches = $this->matchesService->getshortedby($userId);
+                return $this->sendResponse($matches, 'Matches retrieved successfully.');
+                break;    
             default:
                 return $this->sendError('Type not found.', array(), 404);
                 break;
