@@ -95,7 +95,7 @@ class ProfileController extends BaseController
             return $this->sendError('Error uploading profile images.', ['error' => $e->getMessage()], 404);
         }
     }
-    public function Shortlist(Request $request)
+    public function shortlist(Request $request)
 {
     try {
         $validatedData = $request->validate([
