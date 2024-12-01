@@ -17,19 +17,10 @@ class ProfileImg extends Model
     protected $table = 'profile_img';
 
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = [
-        'img_path',
-    ];
-
-    /**
      * Define the relationship to the Profile model.
      */
     public function profile()
     {
-        return $this->hasOne(Profile::class, 'profile_img_id', 'id');
+        return $this->belongsTo(Profile::class, 'profile_id');
     }
 }
