@@ -56,37 +56,39 @@ class ProfileController extends BaseController
         ], 201);
     }
     public function profile_img_store(Request $request)
-{
-    // Validate the input
-    $validatedData = $request->validate([
-        'id' => 'required',
-        'profile_img' => 'required|array', 
-        'profile_img.*' => 'image|mimes:jpeg,png,jpg', 
-    ]);
-    $id = $request->id;
-    $userData = User::with('profile')->where('id', $id)->first();
-    if (!$userData || !$userData->profile) {
-        return response()->json(['error' => 'User profile not found.'], 404);
-    }
-    $uploadedFiles = $request->file('profile_img');
-    if (!is_array($uploadedFiles)) {
-        $uploadedFiles = [$uploadedFiles]; 
-    }
-    $storedImages = [];
-    foreach ($uploadedFiles as $image) {
-        if ($image->isValid()) {
-            $path = $image->store('profile_images', 'public');
-            ProfileImg::insert([ 
-                'profile_id' => $userData->profile->id,
-                'img_path' => $path, 
+    {
+        try {
+            // Validate the input
+            $validatedData = $request->validate([
+                'id' => 'required',
+                'profile_img' => 'required|array',
+                'profile_img.*' => 'image|mimes:jpeg,png,jpg',
             ]);
-            $storedImages[] = asset('storage/' . $path);
-        } else {
-            return $this->sendError('Invalid file upload.', array(), 404);
+            $id = $request->id;
+            $userData = User::with('profile')->where('id', $id)->first();
+            if (!$userData || !$userData->profile) {
+                return response()->json(['error' => 'User profile not found.'], 404);
+            }
+            $uploadedFiles = $request->file('profile_img');
+            if (!is_array($uploadedFiles)) {
+                $uploadedFiles = [$uploadedFiles];
+            }
+            $storedImages = [];
+            foreach ($uploadedFiles as $image) {
+                if ($image->isValid()) {
+                    $path = $image->store('profile_images', 'public');
+                    ProfileImg::insert([
+                        'profile_id' => $userData->profile->id,
+                        'img_path' => $path,
+                    ]);
+                    $storedImages[] = asset('storage/' . $path);
+                } else {
+                    return $this->sendError('Invalid file upload.', array(), 404);
+                }
+            }
+            return $this->sendResponse($storedImages, 'Profile Images uploaded successfully!');
+        } catch (\Exception $e) {
+            return $this->sendError('Error uploading profile images.', ['error' => $e->getMessage()], 404);
         }
     }
-    return $this->sendResponse($storedImages, 'Profile Images uploaded successfully!');
-    
-}
-     
 }
