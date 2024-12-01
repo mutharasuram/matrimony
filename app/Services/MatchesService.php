@@ -116,32 +116,6 @@ $users = User::with('profile')
     ->orderBy('created_at', 'desc')
     ->get();
 
-    // $users = User::with('profile')
-    //         ->whereHas('profile', function ($query) use ( $oppositeGender,
-    //         $userDob,
-    //         $userHeight,
-    //         $userSubcaste,
-    //         $willingToMarryFromSubcaste,
-    //         $state_of_birth,
-    //         $country_of_birth,
-    //         $city_of_birth,
-    //         $country_living_in,
-    //         $residing_state,
-    //         $residing_city) {
-    //             $query->where('gender', $oppositeGender)
-    //                 ->where('height', '<=', $userHeight);
-    //             if ($willingToMarryFromSubcaste === 'yes') {
-    //                 $query->where('subcaste', $userSubcaste);
-    //             }
-    //             if ($oppositeGender === 'female') {
-    //                 $query->where('dob', '<=', $userDob);
-    //             } else {
-    //                 $query->where('dob', '>=', $userDob);
-    //             }
-    //         })
-    //         ->orderBy('created_at', 'desc')
-    //         ->get();
-
 return $users;
 
     }
