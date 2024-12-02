@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Interest;
 use App\Models\Shortlist;
 use App\Models\User;
 use DateTime;
@@ -131,7 +132,6 @@ class MatchesService
         }
         return $shortlisted;
     }
-    
     public function getshortedby($id){
         $shortlisted = Shortlist::whoShortlistedMe($id);
         if ($shortlisted->isNotEmpty()) {
@@ -140,5 +140,23 @@ class MatchesService
             });
         }
         return $shortlisted;
+    }
+    public function getInterested($id){
+        $interestedlisted = Interest::iInterestedlisted($id);
+        if ($interestedlisted->isNotEmpty()) {
+            return $interestedlisted->map(function ($item) {
+                return $item->receiver;
+            });
+        }
+        return $interestedlisted; 
+    }
+    public function getInterestedBy($id){
+        $interestedlisted = Interest::whoInterestedlistedMe($id);
+        if ($interestedlisted->isNotEmpty()) {
+            return $interestedlisted->map(function ($item) {
+                return $item->sender;
+            });
+        }
+        return $interestedlisted; 
     }
 }
