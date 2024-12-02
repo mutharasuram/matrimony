@@ -133,15 +133,12 @@ class MatchesService
     }
     
     public function getshortedby($id){
-        $userData = User::with('profile')->where('id', $id)->first();
-        $gender = $userData->profile->gender ?? 'male';
-        $oppositeGender = $gender == 'male' ? 'female' : 'male';
-        $users = User::with('profile', 'profile.images')
-            ->whereHas('profile', function ($query) use ($oppositeGender) {
-                $query->where('gender', $oppositeGender);
-            })
-            ->orderBy('created_at', 'desc')
-            ->take(20)
-            ->get();
+        $shortlisted = Shortlist::whoShortlistedMe($id);
+        if ($shortlisted->isNotEmpty()) {
+            return $shortlisted->map(function ($item) {
+                return $item->user;
+            });
+        }
+        return $shortlisted;
     }
 }

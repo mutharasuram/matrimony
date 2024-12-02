@@ -51,6 +51,6 @@ class Shortlist extends Model
      */
     public static function whoShortlistedMe(int $userId)
     {
-        return self::where('shorted_id', $userId)->with('user')->get();
+        return self::where('shorted_id', $userId)->with('user','user.profile', 'user.profile.images')->get();
     }
 }
