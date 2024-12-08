@@ -25,12 +25,32 @@ class InterestController extends BaseController
         try {
             $validatedData = $request->validate([
                 'sender_id' =>'required', 
-                'receiver_id' =>'required', 
-                'status'=>'required',
-                'message'=>'required', 
+                'receiver_id' =>'required',
+                'status'=>'required', 
+                'message' => 'nullable'
             ]);
-            $interest = $this->interestservice->storeIntrest($validatedData);
-            return $this->sendResponse($interest['response'], $interest['message']);
+            $status=$validatedData['status'];
+            switch($status){
+                case 'pending':
+                    $interest = $this->interestservice->storeIntrest($validatedData);
+                    return $this->sendResponse($interest['response'], $interest['message']);
+                    break;
+                case 'accepted':
+                    $interest = $this->interestservice->acceptedIntrest($validatedData);
+                    return $this->sendResponse($interest['response'], $interest['message']);
+                    break;  
+                case 'declined':
+                    $interest = $this->interestservice->declinedIntrest($validatedData);
+                    return $this->sendResponse($interest['response'], $interest['message']);
+                    break;
+                case 'replied':
+                    $interest = $this->interestservice->repliedIntrest($validatedData);
+                    return $this->sendResponse($interest['response'], $interest['message']);
+                    break; 
+                default:
+                    return $this->sendError('Type not found.', array(), 404);
+                    break;           
+            }
         } catch (\Illuminate\Validation\ValidationException $e) {
             return $this->sendError('Validation Error', $e->errors(), 422);
         } catch (\Exception $e) {
