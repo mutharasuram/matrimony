@@ -1,5 +1,6 @@
 <?php
-  
+
+use App\Http\Controllers\API\InterestController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
   
@@ -20,5 +21,5 @@ Route::controller(RegisterController::class)->group(function(){
     Route::get('matches', [MatchesController::class, 'index']);
     Route::Post('image_upload', [ProfileController::class, 'profile_img_store']);
     Route::Post('shortlist', [ProfileController::class, 'shortlist']);
-
+    Route::Post('intrested', [InterestController::class, 'store']);
 // });

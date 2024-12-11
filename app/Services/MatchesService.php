@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Interest;
 use App\Models\Shortlist;
 use App\Models\User;
 use DateTime;
@@ -131,17 +132,31 @@ class MatchesService
         }
         return $shortlisted;
     }
-    
     public function getshortedby($id){
-        $userData = User::with('profile')->where('id', $id)->first();
-        $gender = $userData->profile->gender ?? 'male';
-        $oppositeGender = $gender == 'male' ? 'female' : 'male';
-        $users = User::with('profile', 'profile.images')
-            ->whereHas('profile', function ($query) use ($oppositeGender) {
-                $query->where('gender', $oppositeGender);
-            })
-            ->orderBy('created_at', 'desc')
-            ->take(20)
-            ->get();
+        $shortlisted = Shortlist::whoShortlistedMe($id);
+        if ($shortlisted->isNotEmpty()) {
+            return $shortlisted->map(function ($item) {
+                return $item->user;
+            });
+        }
+        return $shortlisted;
+    }
+    public function getInterested($id){
+        $interestedlisted = Interest::iInterestedlisted($id);
+        if ($interestedlisted->isNotEmpty()) {
+            return $interestedlisted->map(function ($item) {
+                return $item->receiver;
+            });
+        }
+        return $interestedlisted; 
+    }
+    public function getInterestedBy($id){
+        $interestedlisted = Interest::whoInterestedlistedMe($id);
+        if ($interestedlisted->isNotEmpty()) {
+            return $interestedlisted->map(function ($item) {
+                return $item->sender;
+            });
+        }
+        return $interestedlisted; 
     }
 }
