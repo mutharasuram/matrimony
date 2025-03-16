@@ -38,7 +38,14 @@ class RegisterController extends BaseController
     {
         DB::beginTransaction();
         try {
-            $validator = Validator::make($request->all(), [
+            $contentType = $request->header('Content-Type');
+            if (str_contains($contentType, 'application/json')) {
+                $input = $request->json()->all(); // For raw JSON
+            } else {
+                $input = $request->all(); // For form-data
+            }
+
+            $validator = Validator::make($input, [
                 'name' => 'required',
                 'email' => 'required|email|unique:users,email',
                 'password' => 'required',
@@ -81,7 +88,6 @@ class RegisterController extends BaseController
             }
 
             $mId = User::generateUniqueMId();
-            $input = $request->all();
             $input['password'] = bcrypt($input['password']);
             $input['m_id'] = $mId;
             $user = User::create($input);
