@@ -175,36 +175,70 @@ class RegisterController extends BaseController
     {
         try {
             $apiKey = env('FAST2SMS_API_KEY');
-            $url = env('FAST2SMS_URL');
-            $otp = rand(100000, 999999);
+            $url = "https://www.fast2sms.com/dev/bulkV2"; // Correct endpoint
+    
+            $otp = rand(100000, 999999); // Generate OTP
+    
+            // Request Body
             $fields = [
-                'variables_values' => $otp,
-                'route' => 'otp',
-                'numbers' => $request->mobile,
+                "route" => "dlt",
+                "sender_id" => "LKGBUS", // Approved Sender ID
+                "message" => "168388", // Approved DLT Template ID
+                "variables_values" => $otp,
+                "flash" => 0, // Normal SMS (not flash)
+                "numbers" => $request->mobile // Recipient number
             ];
-
+    
+            // Send request to Fast2SMS
             $response = Http::withHeaders([
-                'authorization' => $apiKey,
-                'accept' => '*/*',
-                'cache-control' => 'no-cache',
-                'content-type' => 'application/json',
+                "authorization" => $apiKey,
+                "Content-Type" => "application/json"
             ])->post($url, $fields);
 
-            $responseBody = json_decode($response->body());
-
-            if ($responseBody && $responseBody->return) {
-                Otp::where('mobile', $request->mobile)
-                    ->delete();
+    
+            $responseBody = json_decode($response->body(), true);
+    
+            if (!$responseBody) {
+                return response()->json([
+                    "success" => false,
+                    "message" => "Invalid API Response",
+                    "data" => [
+                        "error" => "Fast2SMS did not return valid JSON",
+                        "raw_response" => $response->body()
+                    ]
+                ], 400);
+            }
+    
+            // Check if SMS was sent successfully
+            if (isset($responseBody['return']) && $responseBody['return']) {
+                // Store OTP in database
+                Otp::where('mobile', $request->mobile)->delete();
                 Otp::create(['mobile' => $request->mobile, 'otp' => $otp]);
-                return $this->sendResponse($responseBody, 'OTP sent successfully.');
+    
+                return response()->json([
+                    "success" => true,
+                    "message" => "OTP sent successfully",
+                    "data" => $responseBody
+                ]);
             } else {
-                return $this->sendError('Failed to send OTP.', ['error' => $responseBody->message], 400);
+                return response()->json([
+                    "success" => false,
+                    "message" => "Failed to send OTP",
+                    "data" => [
+                        "error" => $responseBody['message'] ?? "Unknown Error",
+                        "full_response" => $responseBody
+                    ]
+                ], 400);
             }
         } catch (\Exception $e) {
-            return $this->sendError('Error', ['error' => $e->getMessage()]);
+            return response()->json([
+                "success" => false,
+                "message" => "Error",
+                "data" => ["error" => $e->getMessage()]
+            ]);
         }
     }
-
+    
     public function verifyOtp(Request $request)
     {
         try {
