@@ -8,11 +8,11 @@ use App\Models\Otp;
 use App\Models\User;
 use App\Models\Profile;
 use Illuminate\Support\Facades\Auth;
-use Validator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
 use App\Services\MatchesService;
+use Illuminate\Support\Facades\Validator ;
 
 class RegisterController extends BaseController
 {
@@ -38,7 +38,14 @@ class RegisterController extends BaseController
     {
         DB::beginTransaction();
         try {
-            $validator = Validator::make($request->all(), [
+            $contentType = $request->header('Content-Type');
+            if (str_contains($contentType, 'application/json')) {
+                $input = $request->json()->all(); // For raw JSON
+            } else {
+                $input = $request->all(); // For form-data
+            }
+
+            $validator = Validator::make($input, [
                 'name' => 'required',
                 'email' => 'required|email|unique:users,email',
                 'password' => 'required',
@@ -74,6 +81,10 @@ class RegisterController extends BaseController
                 'state_of_birth' => 'nullable|string|max:255',
                 'city_of_birth' => 'nullable|string|max:255',
                 'horoscope_chart_style' => 'nullable|string|max:255',
+                'education_category' => 'nullable|string|max:255',
+                'habit' => 'nullable|string|max:255',
+                'isEligible' => 'nullable|boolean',
+                'income' => 'nullable|string|max:255',
             ]);
 
             if ($validator->fails()) {
@@ -81,7 +92,6 @@ class RegisterController extends BaseController
             }
 
             $mId = User::generateUniqueMId();
-            $input = $request->all();
             $input['password'] = bcrypt($input['password']);
             $input['m_id'] = $mId;
             $user = User::create($input);
@@ -116,7 +126,11 @@ class RegisterController extends BaseController
                 'country_of_birth',
                 'state_of_birth',
                 'city_of_birth',
-                'horoscope_chart_style'
+                'horoscope_chart_style',
+                'education_category',
+                'habit',
+                'isEligible',
+                'income',
             ]);
             $profileData['user_id'] = $user->id;
             Profile::create($profileData);
@@ -167,38 +181,68 @@ class RegisterController extends BaseController
 
     public function sendSms(Request $request)
     {
-        try {
+       // try {
             $apiKey = env('FAST2SMS_API_KEY');
-            $url = env('FAST2SMS_URL');
-            $otp = rand(100000, 999999);
+            $url = "https://www.fast2sms.com/dev/bulkV2"; 
+    
+            $otp = rand(100000, 999999); 
             $fields = [
-                'variables_values' => $otp,
-                'route' => 'otp',
-                'numbers' => $request->mobile,
+                "route" => "dlt",
+                "sender_id" => "LKGBUS", 
+                "message" => "168388",
+                "variables_values" => $otp,
+                "flash" => 0,
+                "numbers" => $request->mobile 
             ];
-
             $response = Http::withHeaders([
-                'authorization' => $apiKey,
-                'accept' => '*/*',
-                'cache-control' => 'no-cache',
-                'content-type' => 'application/json',
+                "authorization" => $apiKey,
+                "Content-Type" => "application/json"
             ])->post($url, $fields);
 
-            $responseBody = json_decode($response->body());
-
-            if ($responseBody && $responseBody->return) {
-                Otp::where('mobile', $request->mobile)
-                    ->delete();
-                Otp::create(['mobile' => $request->mobile, 'otp' => $otp]);
-                return $this->sendResponse($responseBody, 'OTP sent successfully.');
-            } else {
-                return $this->sendError('Failed to send OTP.', ['error' => $responseBody->message], 400);
+    
+            $responseBody = json_decode($response->body(), true);
+    
+            if (!$responseBody) {
+                return response()->json([
+                    "success" => false,
+                    "message" => "Invalid API Response",
+                    "data" => [
+                        "error" => "Fast2SMS did not return valid JSON",
+                        "raw_response" => $response->body()
+                    ]
+                ], 400);
             }
-        } catch (\Exception $e) {
-            return $this->sendError('Error', ['error' => $e->getMessage()]);
-        }
+    
+            // Check if SMS was sent successfully
+            if (isset($responseBody['return']) && $responseBody['return']) {
+                // Store OTP in database
+                Otp::where('mobile', $request->mobile)->delete();
+                Otp::create(['mobile' => $request->mobile, 'otp' => $otp]);
+    
+                return response()->json([
+                    "success" => true,
+                    "message" => "OTP sent successfully",
+                    "data" => $responseBody
+                ]);
+            } else {
+                return response()->json([
+                    "success" => false,
+                    "message" => "Failed to send OTP",
+                    "data" => [
+                        "error" => $responseBody['message'] ?? "Unknown Error",
+                        "full_response" => $responseBody
+                    ]
+                ], 400);
+            }
+        // } catch (\Exception $e) {
+        //     return response()->json([
+        //         "success" => false,
+        //         "message" => "Error",
+        //         "data" => ["error" => $e->getMessage()]
+        //     ]);
+        // }
     }
-
+    
     public function verifyOtp(Request $request)
     {
         try {
@@ -279,6 +323,21 @@ class RegisterController extends BaseController
             return $this->sendResponse(true, 'Password updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
+            return $this->sendError('Error', ['error' => $e->getMessage()]);
+        }
+    }
+    
+    public function getUserDetails($id)
+    {
+        try {
+            $user = User::with(['profile', 'profile.images'])->find($id);
+    
+            if (!$user) {
+                return $this->sendError('User not found.', ['error' => 'User does not exist.']);
+            }
+    
+            return $this->sendResponse($user, 'User details retrieved successfully.');
+        } catch (\Exception $e) {
             return $this->sendError('Error', ['error' => $e->getMessage()]);
         }
     }
