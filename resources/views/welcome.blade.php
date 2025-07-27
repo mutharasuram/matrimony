@@ -12,7 +12,7 @@
     </head>
     <body class="font-sans antialiased dark:bg-black dark:text-white/50">
         <div class="home-section">
-           <h1>Welcome</h1>
+           <h1>Welcome Users</h1>
         </div>
     </body>
 </html>
