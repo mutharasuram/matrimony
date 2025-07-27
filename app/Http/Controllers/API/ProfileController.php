@@ -126,4 +126,23 @@ class ProfileController extends BaseController
         return $this->sendError('Error processing request.', ['error' => $e->getMessage()], 500);
     }
 }
+        public function delete_account(Request $request){
+           try {
+        $validatedData = $request->validate([
+            'user_id' => 'required', 
+        ]);
+        $id = $request->user_id;
+        $user = user::where(['id' => $id])->first();
+            $data = user::where([
+                'id' => $id,
+            ])->delete();
+           $item='true';
+            return $this->sendResponse($item, 'User Profile Deleted successfully!');
+       
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return $this->sendError('Validation Error', $e->errors(), 422);
+    } catch (\Exception $e) {
+        return $this->sendError('Error processing request.', ['error' => $e->getMessage()], 500);
+    }  
+        }
 }
