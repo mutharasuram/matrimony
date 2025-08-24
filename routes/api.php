@@ -28,6 +28,7 @@ Route::controller(RegisterController::class)->group(function(){
     Route::Post('delete_account', [ProfileController::class, 'delete_account']);
     Route::Post('intrested', [InterestController::class, 'store']);
     Route::get('/user/{id}', [RegisterController::class, 'getUserDetails']);
+    Route::Post('user-details', [ProfileController::class, 'getUserDetails']);
 // });
 
 Route::get('/countries', [LocationController::class, 'getCountries']);

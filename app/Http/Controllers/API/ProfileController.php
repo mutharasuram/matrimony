@@ -83,11 +83,12 @@ class ProfileController extends BaseController
                         'profile_id' => $userData->profile->id,
                         'img_path' => $path,
                     ]);
-                    $storedImages[] = asset('storage/' . $path);
+                    $storedImages[] = url('storage/app/public/' . $path);
                 } else {
                     return $this->sendError('Invalid file upload.', array(), 404);
                 }
             }
+
             return $this->sendResponse($storedImages, 'Profile Images uploaded successfully!');
         } catch (\Illuminate\Validation\ValidationException $e) {
             return $this->sendError('Validation Error', $e->errors(), 422);
@@ -145,4 +146,97 @@ class ProfileController extends BaseController
         return $this->sendError('Error processing request.', ['error' => $e->getMessage()], 500);
     }  
         }
+
+    public function getUserDetails(Request $request)
+    {
+        try {
+            $validatedData = $request->validate([
+                'user_id' => 'required|exists:users,id',
+            ]);
+
+            $userId = $request->user_id;
+
+            // Get user with profile and images
+            $user = User::with(['profile.images'])
+                ->where('id', $userId)
+                ->first();
+
+            if (!$user) {
+                return $this->sendError('User not found.', [], 404);
+            }
+
+            // Format the response
+            $userData = [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'mobile' => $user->mobile,
+                'm_id' => $user->m_id,
+                'created_at' => $user->created_at,
+                'updated_at' => $user->updated_at,
+                'profile' => null,
+                'images' => []
+            ];
+
+            // Add profile data if exists
+            if ($user->profile) {
+                $userData['profile'] = [
+                    'id' => $user->profile->id,
+                    'profile_created_by' => $user->profile->profile_created_by,
+                    'gender' => $user->profile->gender,
+                    'name' => $user->profile->name,
+                    'dob' => $user->profile->dob,
+                    'mother_tongue' => $user->profile->mother_tongue,
+                    'subcaste' => $user->profile->subcaste,
+                    'sub_caste_details' => $user->profile->sub_caste_details,
+                    'willing_to_marry_from_subcaste' => $user->profile->willing_to_marry_from_subcaste,
+                    'marital_status' => $user->profile->marital_status,
+                    'country_living_in' => $user->profile->country_living_in,
+                    'residing_state' => $user->profile->residing_state,
+                    'residing_city' => $user->profile->residing_city,
+                    'citizenship' => $user->profile->citizenship,
+                    'height' => $user->profile->height,
+                    'education' => $user->profile->education,
+                    'employed_in' => $user->profile->employed_in,
+                    'occupation' => $user->profile->occupation,
+                    'annual_income' => $user->profile->annual_income,
+                    'physical_status' => $user->profile->physical_status,
+                    'family_status' => $user->profile->family_status,
+                    'family_type' => $user->profile->family_type,
+                    'about_me' => $user->profile->about_me,
+                    'dosham' => $user->profile->dosham,
+                    'star_nakshatram' => $user->profile->star_nakshatram,
+                    'rasi' => $user->profile->rasi,
+                    'gothram' => $user->profile->gothram,
+                    'time_of_birth' => $user->profile->time_of_birth,
+                    'country_of_birth' => $user->profile->country_of_birth,
+                    'state_of_birth' => $user->profile->state_of_birth,
+                    'city_of_birth' => $user->profile->city_of_birth,
+                    'horoscope_chart_style' => $user->profile->horoscope_chart_style,
+                    'created_at' => $user->profile->created_at,
+                    'updated_at' => $user->profile->updated_at,
+                ];
+
+                // Add images if they exist
+                if ($user->profile->images && $user->profile->images->count() > 0) {
+                    $userData['images'] = $user->profile->images->map(function ($image) {
+                        return [
+                            'id' => $image->id,
+                            'img_path' => $image->img_path,
+                            'full_url' => url('storage/app/public/' . $image->img_path),
+                            'created_at' => $image->created_at,
+                            'updated_at' => $image->updated_at,
+                        ];
+                    })->toArray();
+                }
+            }
+
+            return $this->sendResponse($userData, 'User details retrieved successfully!');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return $this->sendError('Validation Error', $e->errors(), 422);
+        } catch (\Exception $e) {
+            return $this->sendError('Error retrieving user details.', ['error' => $e->getMessage()], 500);
+        }
+    }
 }
