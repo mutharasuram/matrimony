@@ -4,8 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use App\Models\User;
 use App\Models\Profile;
+use App\Models\ProfileImg;
 use App\Models\Product;
 
 class AdminController extends Controller
@@ -56,6 +60,338 @@ class AdminController extends Controller
         return view('admin.dashboard', compact('totalUsers', 'totalProfiles', 'totalProducts', 'recentUsers', 'recentProfiles'));
     }
 
+    public function users(Request $request)
+    {
+        // Account status: active (default), inactive (soft deleted), all (withTrashed)
+        $account = $request->get('account');
+
+        $baseQuery = User::query();
+        if ($account === 'inactive') {
+            $baseQuery = $baseQuery->onlyTrashed();
+        } elseif ($account === 'all') {
+            $baseQuery = $baseQuery->withTrashed();
+        }
+
+        $query = $baseQuery->with('profile');
+        
+        // Search functionality
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('mobile', 'like', "%{$search}%")
+                  ->orWhere('m_id', 'like', "%{$search}%");
+            });
+        }
+        
+        // Sort functionality (whitelisted columns)
+        $allowedSortColumns = ['name', 'email', 'created_at', 'mobile', 'm_id'];
+        $sortBy = $request->get('sort_by', 'created_at');
+        if (! in_array($sortBy, $allowedSortColumns, true)) {
+            $sortBy = 'created_at';
+        }
+        $sortOrder = $request->get('sort_order', 'desc');
+        $sortOrder = strtolower($sortOrder) === 'asc' ? 'asc' : 'desc';
+        $query->orderBy($sortBy, $sortOrder);
+        
+        $users = $query->paginate(15);
+        
+        return view('admin.users', compact('users'));
+    }
+
+    public function createUser()
+    {
+        [$stars, $rasis] = $this->getAstroOptions();
+        return view('admin.users-create', compact('stars', 'rasis'));
+    }
+
+    public function storeUser(Request $request)
+    {
+        [$stars, $rasis] = $this->getAstroOptions();
+
+        $validated = $request->validate([
+            // user fields
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
+            'mobile' => ['required', 'string', 'max:20', Rule::unique('users', 'mobile')],
+            'password' => ['required', 'string', 'min:6', 'confirmed'],
+            'is_admin' => ['nullable', 'boolean'],
+            
+            // profile fields
+            'profile_created_by' => ['required', Rule::in(['self', 'parent', 'sibling', 'relative', 'friend'])],
+            'gender' => ['required', Rule::in(['male', 'female'])],
+            'profile_name' => ['required', 'string', 'max:255'],
+            'dob' => ['required', 'date'],
+            'mother_tongue' => ['required', 'string', 'max:255'],
+            'subcaste' => ['nullable', 'string', 'max:255'],
+            'willing_to_marry_from_subcaste' => ['required', Rule::in(['yes', 'no'])],
+            'marital_status' => ['required', Rule::in(['Unmarried', 'Widower', 'Divorced', 'Separated'])],
+            'country_living_in' => ['required', 'string', 'max:255'],
+            'residing_state' => ['required', 'string', 'max:255'],
+            'residing_city' => ['required', 'string', 'max:255'],
+            'citizenship' => ['required', 'string', 'max:255'],
+            'height' => ['required', 'string', 'max:50'],
+            'education' => ['required', 'string', 'max:255'],
+            'employed_in' => ['nullable', 'string', 'max:255'],
+            'occupation' => ['nullable', 'string', 'max:255'],
+            'annual_income' => ['nullable', 'string', 'max:255'],
+            'physical_status' => ['required', Rule::in(['normal', 'physically_challenged'])],
+            'family_status' => ['required', Rule::in(['middle_class', 'upper_middle class', 'rich_affluent'])],
+            'family_type' => ['required', Rule::in(['joint_family', 'nuclear_family'])],
+            'about_me' => ['nullable', 'string'],
+            'dosham' => ['nullable', 'string', 'max:50'],
+            'star_nakshatram' => ['nullable', Rule::in($stars)],
+            'rasi' => ['nullable', Rule::in($rasis)],
+            'gothram' => ['nullable', 'string', 'max:255'],
+            // accept either HH:MM or HH:MM:SS and normalize later
+            'time_of_birth' => ['nullable', 'string'],
+            'country_of_birth' => ['nullable', 'string', 'max:255'],
+            'state_of_birth' => ['nullable', 'string', 'max:255'],
+            'city_of_birth' => ['nullable', 'string', 'max:255'],
+            'horoscope_chart_style' => ['nullable', 'string', 'max:255'],
+
+            // images
+            'images.*' => ['nullable', 'image', 'max:2048'],
+        ]);
+
+        // Normalize time_of_birth to HH:MM if present
+        $timeOfBirth = $request->input('time_of_birth');
+        if (! empty($timeOfBirth)) {
+            $parsed = \DateTime::createFromFormat('H:i', $timeOfBirth) ?: \DateTime::createFromFormat('H:i:s', $timeOfBirth);
+            if (! $parsed) {
+                return back()->withErrors(['time_of_birth' => 'The time of birth must be in format HH:MM.'])->withInput();
+            }
+            $timeOfBirth = $parsed->format('H:i');
+        } else {
+            $timeOfBirth = null;
+        }
+
+        $user = new User();
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        $user->mobile = $validated['mobile'];
+        $user->m_id = User::generateUniqueMId();
+        $user->password = Hash::make($validated['password']);
+        $user->is_admin = (bool)($validated['is_admin'] ?? false);
+        $user->save();
+
+        $profile = new Profile();
+        $profile->user_id = $user->id;
+        $profile->profile_created_by = $validated['profile_created_by'];
+        $profile->gender = $validated['gender'];
+        $profile->name = $validated['profile_name'];
+        $profile->dob = $validated['dob'];
+        $profile->mother_tongue = $validated['mother_tongue'];
+        $profile->subcaste = $validated['subcaste'] ?? null;
+        $profile->willing_to_marry_from_subcaste = $validated['willing_to_marry_from_subcaste'];
+        $profile->marital_status = $validated['marital_status'];
+        $profile->country_living_in = $validated['country_living_in'];
+        $profile->residing_state = $validated['residing_state'];
+        $profile->residing_city = $validated['residing_city'];
+        $profile->citizenship = $validated['citizenship'];
+        $profile->height = $validated['height'];
+        $profile->education = $validated['education'];
+        $profile->employed_in = $validated['employed_in'] ?? null;
+        $profile->occupation = $validated['occupation'] ?? null;
+        $profile->annual_income = $validated['annual_income'] ?? null;
+        $profile->physical_status = $validated['physical_status'];
+        $profile->family_status = $validated['family_status'];
+        $profile->family_type = $validated['family_type'];
+        $profile->about_me = $validated['about_me'] ?? null;
+        $profile->dosham = $validated['dosham'] ?? null;
+        $profile->star_nakshatram = $validated['star_nakshatram'] ?? null;
+        $profile->rasi = $validated['rasi'] ?? null;
+        $profile->gothram = $validated['gothram'] ?? null;
+        $profile->time_of_birth = $timeOfBirth;
+        $profile->country_of_birth = $validated['country_of_birth'] ?? null;
+        $profile->state_of_birth = $validated['state_of_birth'] ?? null;
+        $profile->city_of_birth = $validated['city_of_birth'] ?? null;
+        $profile->horoscope_chart_style = $validated['horoscope_chart_style'] ?? null;
+        $profile->save();
+
+        // Handle images upload
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('profile_images', 'public');
+                ProfileImg::create([
+                    'profile_id' => $profile->id,
+                    'img_path' => $path,
+                ]);
+            }
+        }
+
+        return redirect()->route('admin.users')->with('success', 'User created successfully.');
+    }
+
+    public function editUser(int $id)
+    {
+        [$stars, $rasis] = $this->getAstroOptions();
+        $user = User::with(['profile', 'profile.images'])->withTrashed()->findOrFail($id);
+        return view('admin.users-edit', compact('user', 'stars', 'rasis'));
+    }
+
+    public function updateUser(Request $request, int $id)
+    {
+        [$stars, $rasis] = $this->getAstroOptions();
+        $user = User::with('profile')->withTrashed()->findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'mobile' => ['required', 'string', 'max:20', Rule::unique('users', 'mobile')->ignore($user->id)],
+            'password' => ['nullable', 'string', 'min:6', 'confirmed'],
+            'is_admin' => ['nullable', 'boolean'],
+
+            'profile_created_by' => ['required', Rule::in(['self', 'parent', 'sibling', 'relative', 'friend'])],
+            'gender' => ['required', Rule::in(['male', 'female'])],
+            'profile_name' => ['required', 'string', 'max:255'],
+            'dob' => ['required', 'date'],
+            'mother_tongue' => ['required', 'string', 'max:255'],
+            'subcaste' => ['nullable', 'string', 'max:255'],
+            'willing_to_marry_from_subcaste' => ['required', Rule::in(['yes', 'no'])],
+            'marital_status' => ['required', Rule::in(['Unmarried', 'Widower', 'Divorced', 'Separated'])],
+            'country_living_in' => ['required', 'string', 'max:255'],
+            'residing_state' => ['required', 'string', 'max:255'],
+            'residing_city' => ['required', 'string', 'max:255'],
+            'citizenship' => ['required', 'string', 'max:255'],
+            'height' => ['required', 'string', 'max:50'],
+            'education' => ['required', 'string', 'max:255'],
+            'employed_in' => ['nullable', 'string', 'max:255'],
+            'occupation' => ['nullable', 'string', 'max:255'],
+            'annual_income' => ['nullable', 'string', 'max:255'],
+            'physical_status' => ['required', Rule::in(['normal', 'physically_challenged'])],
+            'family_status' => ['required', Rule::in(['middle_class', 'upper_middle class', 'rich_affluent'])],
+            'family_type' => ['required', Rule::in(['joint_family', 'nuclear_family'])],
+            'about_me' => ['nullable', 'string'],
+            'dosham' => ['nullable', 'string', 'max:50'],
+            'star_nakshatram' => ['nullable', Rule::in($stars)],
+            'rasi' => ['nullable', Rule::in($rasis)],
+            'gothram' => ['nullable', 'string', 'max:255'],
+            // accept either HH:MM or HH:MM:SS and normalize later
+            'time_of_birth' => ['nullable', 'string'],
+            'country_of_birth' => ['nullable', 'string', 'max:255'],
+            'state_of_birth' => ['nullable', 'string', 'max:255'],
+            'city_of_birth' => ['nullable', 'string', 'max:255'],
+            'horoscope_chart_style' => ['nullable', 'string', 'max:255'],
+
+            // images
+            'images.*' => ['nullable', 'image', 'max:2048'],
+        ]);
+
+        // Normalize time_of_birth to HH:MM if present
+        $timeOfBirth = $request->input('time_of_birth');
+        if (! empty($timeOfBirth)) {
+            $parsed = \DateTime::createFromFormat('H:i', $timeOfBirth) ?: \DateTime::createFromFormat('H:i:s', $timeOfBirth);
+            if (! $parsed) {
+                return back()->withErrors(['time_of_birth' => 'The time of birth must be in format HH:MM.'])->withInput();
+            }
+            $timeOfBirth = $parsed->format('H:i');
+        } else {
+            $timeOfBirth = null;
+        }
+
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        $user->mobile = $validated['mobile'];
+        if (! empty($validated['password'])) {
+            $user->password = Hash::make($validated['password']);
+        }
+        $user->is_admin = (bool)($validated['is_admin'] ?? false);
+        $user->save();
+
+        $profile = $user->profile ?? new Profile(['user_id' => $user->id]);
+        $profile->profile_created_by = $validated['profile_created_by'];
+        $profile->gender = $validated['gender'];
+        $profile->name = $validated['profile_name'];
+        $profile->dob = $validated['dob'];
+        $profile->mother_tongue = $validated['mother_tongue'];
+        $profile->subcaste = $validated['subcaste'] ?? null;
+        $profile->willing_to_marry_from_subcaste = $validated['willing_to_marry_from_subcaste'];
+        $profile->marital_status = $validated['marital_status'];
+        $profile->country_living_in = $validated['country_living_in'];
+        $profile->residing_state = $validated['residing_state'];
+        $profile->residing_city = $validated['residing_city'];
+        $profile->citizenship = $validated['citizenship'];
+        $profile->height = $validated['height'];
+        $profile->education = $validated['education'];
+        $profile->employed_in = $validated['employed_in'] ?? null;
+        $profile->occupation = $validated['occupation'] ?? null;
+        $profile->annual_income = $validated['annual_income'] ?? null;
+        $profile->physical_status = $validated['physical_status'];
+        $profile->family_status = $validated['family_status'];
+        $profile->family_type = $validated['family_type'];
+        $profile->about_me = $validated['about_me'] ?? null;
+        $profile->dosham = $validated['dosham'] ?? null;
+        $profile->star_nakshatram = $validated['star_nakshatram'] ?? null;
+        $profile->rasi = $validated['rasi'] ?? null;
+        $profile->gothram = $validated['gothram'] ?? null;
+        $profile->time_of_birth = $timeOfBirth;
+        $profile->country_of_birth = $validated['country_of_birth'] ?? null;
+        $profile->state_of_birth = $validated['state_of_birth'] ?? null;
+        $profile->city_of_birth = $validated['city_of_birth'] ?? null;
+        $profile->horoscope_chart_style = $validated['horoscope_chart_style'] ?? null;
+        $profile->user()->associate($user);
+        $profile->save();
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('profile_images', 'public');
+                ProfileImg::create([
+                    'profile_id' => $profile->id,
+                    'img_path' => $path,
+                ]);
+            }
+        }
+
+        return redirect()->route('admin.users.edit', $user->id)->with('success', 'User updated successfully.');
+    }
+
+    public function deleteUserImage(int $imageId)
+    {
+        $image = ProfileImg::findOrFail($imageId);
+        // Remove file from storage if exists
+        if ($image->img_path && Storage::disk('public')->exists($image->img_path)) {
+            Storage::disk('public')->delete($image->img_path);
+        }
+        $image->delete();
+
+        return back()->with('success', 'Image removed successfully.');
+    }
+
+    public function deactivateUser(Request $request, int $id)
+    {
+        $authUser = $request->user();
+        if ($authUser && (int)$authUser->id === (int)$id) {
+            return back()->with('error', 'You cannot deactivate your own account.');
+        }
+
+        $user = User::find($id);
+        if (! $user) {
+            return back()->with('error', 'User not found or already deactivated.');
+        }
+
+        $user->delete();
+
+        return back()->with('success', 'User has been deactivated.');
+    }
+
+    public function activateUser(Request $request, int $id)
+    {
+        $user = User::withTrashed()->find($id);
+        if (! $user) {
+            return back()->with('error', 'User not found.');
+        }
+
+        if (! $user->trashed()) {
+            return back()->with('success', 'User is already active.');
+        }
+
+        $user->restore();
+
+        return back()->with('success', 'User has been reactivated.');
+    }
+
     public function logout(Request $request)
     {
         Auth::logout();
@@ -63,5 +399,16 @@ class AdminController extends Controller
         $request->session()->regenerateToken();
         
         return redirect()->route('admin.login');
+    }
+
+    protected function getAstroOptions(): array
+    {
+        $stars = [
+            'Ashwini','Bharani','Krittika','Rohini','Mrigashira','Ardra','Punarvasu','Pushya','Ashlesha','Magha','Purva Phalguni','Uttara Phalguni','Hasta','Chitra','Swati','Vishakha','Anuradha','Jyeshta','Mula','Purva Ashadha','Uttara Ashadha','Shravana','Dhanishta','Shatabhisha','Purva Bhadrapada','Uttara Bhadrapada','Revati'
+        ];
+        $rasis = [
+            'Mesha (Aries)','Vrishabha (Taurus)','Mithuna (Gemini)','Karka (Cancer)','Simha (Leo)','Kanya (Virgo)','Tula (Libra)','Vrishchika (Scorpio)','Dhanu (Sagittarius)','Makara (Capricorn)','Kumbha (Aquarius)','Meena (Pisces)'
+        ];
+        return [$stars, $rasis];
     }
 } 
