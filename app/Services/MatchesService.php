@@ -7,6 +7,8 @@ use App\Models\Shortlist;
 use App\Models\User;
 use DateTime;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 
 class MatchesService
 {
@@ -18,50 +20,128 @@ class MatchesService
         //
     }
 
-    public function getJustJoined($id)
+    public function getJustJoined($id, $perPage = 15, $page = 1)
     {
         $userData = User::with('profile')->where('id', $id)->first();
+        
+        if (!$userData || !$userData->profile) {
+            return [
+                'data' => [],
+                'pagination' => [
+                    'current_page' => $page,
+                    'per_page' => $perPage,
+                    'total' => 0,
+                    'last_page' => 0,
+                    'from' => null,
+                    'to' => null
+                ]
+            ];
+        }
+
         $gender = $userData->profile->gender ?? 'male';
         $oppositeGender = $gender == 'male' ? 'female' : 'male';
+        
         $users = User::with('profile', 'profile.images')
+            ->where('id', '!=', $id) // Exclude current user
             ->whereHas('profile', function ($query) use ($oppositeGender) {
                 $query->where('gender', $oppositeGender);
             })
             ->orderBy('created_at', 'desc')
-            ->take(20)
-            ->get();
+            ->paginate($perPage, ['*'], 'page', $page);
 
-        return $users;
+        return [
+            'data' => $users->items(),
+            'pagination' => [
+                'current_page' => $users->currentPage(),
+                'per_page' => $users->perPage(),
+                'total' => $users->total(),
+                'last_page' => $users->lastPage(),
+                'from' => $users->firstItem(),
+                'to' => $users->lastItem()
+            ]
+        ];
     }
-    public function getMatches($id)
+    public function getMatches($id, $perPage = 15, $page = 1)
     {
         $userData = User::with('profile')->where('id', $id)->first();
+        if (!$userData || !$userData->profile) {
+            return [
+                'data' => [],
+                'pagination' => [
+                    'current_page' => $page,
+                    'per_page' => $perPage,
+                    'total' => 0,
+                    'last_page' => 0,
+                    'from' => null,
+                    'to' => null
+                ]
+            ];
+        }
+
         $userGender = $userData->profile->gender;
         $userDob = $userData->profile->dob;
         $userHeight = $userData->profile->height;
         $userSubcaste = $userData->profile->subcaste;
         $willingToMarryFromSubcaste = $userData->profile->willing_to_marry_from_subcaste;
         $oppositeGender = $userGender === 'male' ? 'female' : 'male';
-        $users = User::with('profile')
+        
+        $users = User::with('profile', 'profile.images')
+            ->where('id', '!=', $id) // Exclude current user
             ->whereHas('profile', function ($query) use ($oppositeGender, $userDob, $userHeight, $userSubcaste, $willingToMarryFromSubcaste) {
-                $query->where('gender', $oppositeGender)
-                    ->where('height', '<=', $userHeight);
-                if ($willingToMarryFromSubcaste === 'yes') {
-                    $query->where('subcaste', $userSubcaste);
-                }
-                if ($oppositeGender === 'female') {
-                    $query->where('dob', '<=', $userDob);
-                } else {
-                    $query->where('dob', '>=', $userDob);
-                }
+                $query->where('gender', $oppositeGender);
+                
+                // Height matching logic - ensure both users have height data
+                // if ($userHeight) {
+                //     $query->where('height', '<=', $userHeight);
+                // }
+                
+                // Subcaste matching logic
+                // if ($willingToMarryFromSubcaste === 'yes' && $userSubcaste) {
+                //     $query->where('subcaste', $userSubcaste);
+                // }
+                
+                // Age matching logic - ensure both users have DOB data
+                // if ($userDob) {
+                //     if ($oppositeGender === 'female') {
+                //         $query->where('dob', '<=', $userDob); // Female should be younger or same age
+                //     } else {
+                //         $query->where('dob', '>=', $userDob); // Male should be older or same age
+                //     }
+                // }
             })
             ->orderBy('created_at', 'desc')
-            ->get();
-        return $users;
+            ->paginate($perPage, ['*'], 'page', $page);
+            
+        return [
+            'data' => $users->items(),
+            'pagination' => [
+                'current_page' => $users->currentPage(),
+                'per_page' => $users->perPage(),
+                'total' => $users->total(),
+                'last_page' => $users->lastPage(),
+                'from' => $users->firstItem(),
+                'to' => $users->lastItem()
+            ]
+        ];
     }
-    public function getNearBy($id)
+    public function getNearBy($id, $perPage = 15, $page = 1)
     {
         $userData = User::with('profile')->where('id', $id)->first();
+        
+        if (!$userData || !$userData->profile) {
+            return [
+                'data' => [],
+                'pagination' => [
+                    'current_page' => $page,
+                    'per_page' => $perPage,
+                    'total' => 0,
+                    'last_page' => 0,
+                    'from' => null,
+                    'to' => null
+                ]
+            ];
+        }
+
         $userGender = $userData->profile->gender;
         $userDob = $userData->profile->dob;
         $userHeight = $userData->profile->height;
@@ -70,13 +150,13 @@ class MatchesService
         $country_of_birth = $userData->profile->country_of_birth;
         $city_of_birth = $userData->profile->city_of_birth;
         $country_living_in = $userData->profile->country_living_in;
-        $residing_state = $userData->profile->residing_state;  // Corrected
+        $residing_state = $userData->profile->residing_state;
         $residing_city = $userData->profile->residing_city;
         $willingToMarryFromSubcaste = $userData->profile->willing_to_marry_from_subcaste;
         $oppositeGender = $userGender === 'male' ? 'female' : 'male';
 
-
-        $users = User::with('profile')
+        $users = User::with('profile', 'profile.images')
+            ->where('id', '!=', $id) // Exclude current user
             ->whereHas('profile', function ($query) use (
                 $oppositeGender,
                 $userDob,
@@ -90,73 +170,152 @@ class MatchesService
                 $residing_state,
                 $residing_city
             ) {
-                $query->where('gender', $oppositeGender)
-                    ->where('height', '<=', $userHeight)
-                    ->where(function ($query) use (
-                        $country_of_birth,
-                        $city_of_birth,
-                        $country_living_in,
-                        $residing_state,
-                        $residing_city,
-                        $state_of_birth
-                    ) {
-                        $query->where('state_of_birth', $state_of_birth)
-                            // ->orWhere('country_of_birth', $country_of_birth)
-                            ->orWhere('city_of_birth', $city_of_birth)
-                            // ->orWhere('country_living_in', $country_living_in)
-                            ->orWhere('residing_state', $residing_state)
-                            ->orWhere('residing_city', $residing_city);
-                    });
+                $query->where('gender', $oppositeGender);
+                
+                // Height matching logic - ensure both users have height data
+                if ($userHeight) {
+                    $query->where('height', '<=', $userHeight);
+                }
+                
+                // Location matching logic - check if any location matches
+                $query->where(function ($locationQuery) use (
+                    $state_of_birth,
+                    $city_of_birth,
+                    $residing_state,
+                    $residing_city
+                ) {
+                    if ($state_of_birth) {
+                        $locationQuery->where('state_of_birth', $state_of_birth);
+                    }
+                    if ($city_of_birth) {
+                        $locationQuery->orWhere('city_of_birth', $city_of_birth);
+                    }
+                    if ($residing_state) {
+                        $locationQuery->orWhere('residing_state', $residing_state);
+                    }
+                    if ($residing_city) {
+                        $locationQuery->orWhere('residing_city', $residing_city);
+                    }
+                });
 
-                if ($willingToMarryFromSubcaste === 'yes') {
-                    $query->where('subcaste', $userSubcaste);
-                }
-                if ($oppositeGender === 'female') {
-                    $query->where('dob', '<=', $userDob);
-                } else {
-                    $query->where('dob', '>=', $userDob);
-                }
+                // Subcaste matching logic
+                // if ($willingToMarryFromSubcaste === 'yes' && $userSubcaste) {
+                //     $query->where('subcaste', $userSubcaste);
+                // }
+                
+                // // Age matching logic - ensure both users have DOB data
+                // if ($userDob) {
+                //     if ($oppositeGender === 'female') {
+                //         $query->where('dob', '<=', $userDob); // Female should be younger or same age
+                //     } else {
+                //         $query->where('dob', '>=', $userDob); // Male should be older or same age
+                //     }
+                // }
             })
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate($perPage, ['*'], 'page', $page);
 
-        return $users;
+        return [
+            'data' => $users->items(),
+            'pagination' => [
+                'current_page' => $users->currentPage(),
+                'per_page' => $users->perPage(),
+                'total' => $users->total(),
+                'last_page' => $users->lastPage(),
+                'from' => $users->firstItem(),
+                'to' => $users->lastItem()
+            ]
+        ];
     }
-    public function getshortedlist($id)
+    public function getShortlisted($id, $perPage = 15, $page = 1)
     {
-        $shortlisted = Shortlist::iShortlisted($id);
-        if ($shortlisted->isNotEmpty()) {
-            return $shortlisted->map(function ($item) {
-                return $item->shortlistedUser;
-            });
-        }
-        return $shortlisted;
+        $shortlisted = Shortlist::where('user_id', $id)
+            ->with(['shortlistedUser.profile', 'shortlistedUser.profile.images'])
+            ->paginate($perPage, ['*'], 'page', $page);
+            
+        $data = $shortlisted->map(function ($item) {
+            return $item->shortlistedUser;
+        });
+
+        return [
+            'data' => $data->values()->all(),
+            'pagination' => [
+                'current_page' => $shortlisted->currentPage(),
+                'per_page' => $shortlisted->perPage(),
+                'total' => $shortlisted->total(),
+                'last_page' => $shortlisted->lastPage(),
+                'from' => $shortlisted->firstItem(),
+                'to' => $shortlisted->lastItem()
+            ]
+        ];
     }
-    public function getshortedby($id){
-        $shortlisted = Shortlist::whoShortlistedMe($id);
-        if ($shortlisted->isNotEmpty()) {
-            return $shortlisted->map(function ($item) {
-                return $item->user;
-            });
-        }
-        return $shortlisted;
+    
+    public function getShortlistedBy($id, $perPage = 15, $page = 1)
+    {
+        $shortlisted = Shortlist::where('shorted_id', $id)
+            ->with(['user.profile', 'user.profile.images'])
+            ->paginate($perPage, ['*'], 'page', $page);
+            
+        $data = $shortlisted->map(function ($item) {
+            return $item->user;
+        });
+
+        return [
+            'data' => $data->values()->all(),
+            'pagination' => [
+                'current_page' => $shortlisted->currentPage(),
+                'per_page' => $shortlisted->perPage(),
+                'total' => $shortlisted->total(),
+                'last_page' => $shortlisted->lastPage(),
+                'from' => $shortlisted->firstItem(),
+                'to' => $shortlisted->lastItem()
+            ]
+        ];
     }
-    public function getInterested($id){
-        $interestedlisted = Interest::iInterestedlisted($id);
-        if ($interestedlisted->isNotEmpty()) {
-            return $interestedlisted->map(function ($item) {
-                return $item->receiver;
-            });
-        }
-        return $interestedlisted; 
+    
+    public function getInterested($id, $perPage = 15, $page = 1)
+    {
+        $interested = Interest::where('sender_id', $id)
+            ->with(['receiver.profile', 'receiver.profile.images'])
+            ->paginate($perPage, ['*'], 'page', $page);
+            
+        $data = $interested->map(function ($item) {
+            return $item->receiver;
+        });
+
+        return [
+            'data' => $data->values()->all(),
+            'pagination' => [
+                'current_page' => $interested->currentPage(),
+                'per_page' => $interested->perPage(),
+                'total' => $interested->total(),
+                'last_page' => $interested->lastPage(),
+                'from' => $interested->firstItem(),
+                'to' => $interested->lastItem()
+            ]
+        ];
     }
-    public function getInterestedBy($id){
-        $interestedlisted = Interest::whoInterestedlistedMe($id);
-        if ($interestedlisted->isNotEmpty()) {
-            return $interestedlisted->map(function ($item) {
-                return $item->sender;
-            });
-        }
-        return $interestedlisted; 
+    
+    public function getInterestedBy($id, $perPage = 15, $page = 1)
+    {
+        $interested = Interest::where('receiver_id', $id)
+            ->with(['sender.profile', 'sender.profile.images'])
+            ->paginate($perPage, ['*'], 'page', $page);
+            
+        $data = $interested->map(function ($item) {
+            return $item->sender;
+        });
+
+        return [
+            'data' => $data->values()->all(),
+            'pagination' => [
+                'current_page' => $interested->currentPage(),
+                'per_page' => $interested->perPage(),
+                'total' => $interested->total(),
+                'last_page' => $interested->lastPage(),
+                'from' => $interested->firstItem(),
+                'to' => $interested->lastItem()
+            ]
+        ];
     }
 }

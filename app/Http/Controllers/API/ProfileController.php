@@ -56,6 +56,78 @@ class ProfileController extends BaseController
             'profile' => $profile
         ], 201);
     }
+
+    public function update(Request $request)
+    {
+        try {
+            $validatedData = $request->validate([
+                'user_id' => 'required|exists:users,id',
+                'profile_created_by' => 'sometimes|in:self,parent,sibling,relative,friend',
+                'gender' => 'sometimes|in:male,female',
+                'name' => 'sometimes|string|max:255',
+                'dob' => 'sometimes|date',
+                'mother_tongue' => 'sometimes|string|max:255',
+                'subcaste' => 'nullable|string|max:255',
+                'sub_caste_details' => 'nullable|string|max:255',
+                'willing_to_marry_from_subcaste' => 'sometimes|in:yes,no',
+                'marital_status' => 'sometimes|in:Unmarried,Widower,Divorced,Separated',
+                'country_living_in' => 'sometimes|string|max:255',
+                'residing_state' => 'sometimes|string|max:255',
+                'residing_city' => 'sometimes|string|max:255',
+                'citizenship' => 'sometimes|string|max:255',
+                'height' => 'sometimes|string|max:255',
+                'education' => 'sometimes|string|max:255',
+                'employed_in' => 'nullable|string|max:255',
+                'occupation' => 'nullable|string|max:255',
+                'annual_income' => 'nullable|string|max:255',
+                'physical_status' => 'sometimes|in:normal,physically_challenged',
+                'family_status' => 'sometimes|in:middle_class,upper_middle class,rich_affluent',
+                'family_type' => 'sometimes|in:joint_family,nuclear_family',
+                'about_me' => 'nullable|string',
+                'dosham' => 'sometimes|in:yes,no,donot_know',
+                'star_nakshatram' => 'nullable|string|max:255',
+                'rasi' => 'nullable|string|max:255',
+                'gothram' => 'nullable|string|max:255',
+                'time_of_birth' => 'nullable|date_format:H:i',
+                'country_of_birth' => 'nullable|string|max:255',
+                'state_of_birth' => 'nullable|string|max:255',
+                'city_of_birth' => 'nullable|string|max:255',
+                'horoscope_chart_style' => 'nullable|string|max:255',
+            ]);
+
+            $userId = $validatedData['user_id'];
+            
+            // Find the user and their profile
+            $user = User::with('profile')->where('id', $userId)->first();
+            
+            if (!$user) {
+                return $this->sendError('User not found.', [], 404);
+            }
+            
+            if (!$user->profile) {
+                return $this->sendError('User profile not found.', [], 404);
+            }
+
+            // Remove user_id from the data as it's not needed for update
+            unset($validatedData['user_id']);
+            
+            // Update the profile
+            $user->profile->update($validatedData);
+            
+            // Refresh the profile to get updated data
+            $user->profile->refresh();
+
+            return $this->sendResponse([
+                'profile' => $user->profile
+            ], 'Profile updated successfully!');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return $this->sendError('Validation Error', $e->errors(), 422);
+        } catch (\Exception $e) {
+            return $this->sendError('Error updating profile.', ['error' => $e->getMessage()], 500);
+        }
+    }
+
     public function profile_img_store(Request $request)
     {
         try {
@@ -97,55 +169,95 @@ class ProfileController extends BaseController
         }
     }
     public function shortlist(Request $request)
-{
-    try {
-        $validatedData = $request->validate([
-            'id' => 'required', 
-            'shorted_id' => 'required', 
-        ]);
-        $id = $request->id;
-        $shorted_id = $request->shorted_id;
-        $short_data = Shortlist::where(['user_id' => $id, 'shorted_id' => $shorted_id])->first();
-        if ($short_data) {
-            $data = Shortlist::where([
-                'user_id' => $id,
-                'shorted_id' => $shorted_id
-            ])->delete();
-           $item='true';
-            return $this->sendResponse($item, 'Shortlisted Profile Removed successfully!');
-        } else {
-            $data = Shortlist::insert([
-                'user_id' => $id,
-                'shorted_id' => $shorted_id
-            ]);
-            $item='true';
-            return $this->sendResponse($item, 'Shortlisted Profile added successfully!');
+    {
+        try {
+            // Get parameters from request - handle both JSON and form data
+            $id = $request->get('id');
+            $shorted_id = $request->get('shorted_id');
+            
+            // If not found, try JSON data
+            if (!$id || !$shorted_id) {
+                $jsonData = $request->json() ? $request->json()->all() : [];
+                $id = $id ?: ($jsonData['id'] ?? null);
+                $shorted_id = $shorted_id ?: ($jsonData['shorted_id'] ?? null);
+            }
+            
+            // Validate that we have the required parameters
+            if (!$id || !$shorted_id) {
+                return $this->sendError('Missing required parameters.', [
+                    'id' => $id,
+                    'shorted_id' => $shorted_id
+                ], 400);
+            }
+            
+            // Check if both users exist
+            if (!User::where('id', $id)->exists()) {
+                return $this->sendError('User not found.', ['id' => $id], 404);
+            }
+            
+            if (!User::where('id', $shorted_id)->exists()) {
+                return $this->sendError('User to shortlist not found.', ['shorted_id' => $shorted_id], 404);
+            }
+            
+            if ($id == $shorted_id) {
+                return $this->sendError('Cannot shortlist yourself.', [], 400);
+            }
+            
+            // Check if already shortlisted
+            $short_data = Shortlist::where(['user_id' => $id, 'shorted_id' => $shorted_id])->first();
+            
+            if ($short_data) {
+                // Remove from shortlist
+                $short_data->delete();
+                return $this->sendResponse([
+                    'action' => 'removed',
+                    'shortlisted' => false
+                ], 'Profile removed from shortlist successfully!');
+            } else {
+                // Add to shortlist
+                Shortlist::create([
+                    'user_id' => $id,
+                    'shorted_id' => $shorted_id
+                ]);
+                return $this->sendResponse([
+                    'action' => 'added',
+                    'shortlisted' => true
+                ], 'Profile added to shortlist successfully!');
+            }
+        } catch (\Exception $e) {
+            return $this->sendError('Error processing request.', ['error' => $e->getMessage()], 500);
         }
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        return $this->sendError('Validation Error', $e->errors(), 422);
-    } catch (\Exception $e) {
-        return $this->sendError('Error processing request.', ['error' => $e->getMessage()], 500);
     }
-}
-        public function delete_account(Request $request){
-           try {
-        $validatedData = $request->validate([
-            'user_id' => 'required', 
-        ]);
-        $id = $request->user_id;
-        $user = user::where(['id' => $id])->first();
-            $data = user::where([
-                'id' => $id,
-            ])->delete();
-           $item='true';
-            return $this->sendResponse($item, 'User Profile Deleted successfully!');
+    public function delete_account(Request $request)
+    {
+        try {
+            $validatedData = $request->validate([
+                'user_id' => 'required|integer|exists:users,id', 
+            ]);
+            
+            $userId = $validatedData['user_id'];
+            
+            // Find the user
+            $user = User::where('id', $userId)->first();
+            
+            if (!$user) {
+                return $this->sendError('User not found.', [], 404);
+            }
+            
+            // Delete the user (cascade will handle related records)
+            $user->delete();
+            
+            return $this->sendResponse([
+                'deleted' => true,
+                'user_id' => $userId
+            ], 'User account deleted successfully!');
        
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        return $this->sendError('Validation Error', $e->errors(), 422);
-    } catch (\Exception $e) {
-        return $this->sendError('Error processing request.', ['error' => $e->getMessage()], 500);
-    }  
-        }
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return $this->sendError('Validation Error', $e->errors(), 422);
+        } catch (\Exception $e) {
+            return $this->sendError('Error processing request.', ['error' => $e->getMessage()], 500);
+        }  
+    }
 
     public function getUserDetails(Request $request)
     {

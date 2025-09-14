@@ -22,40 +22,56 @@ class MatchesController extends BaseController
 
     public function index(Request $request)
     {
-        $type = $request->type;
-        $userId = $request->id;
-        switch ($type) {
-            case 'just_joined':
-                $matches = $this->matchesService->getJustJoined($userId);
-                return $this->sendResponse($matches, 'Matches retrieved successfully.');
-                break;
-            case 'matches':
-                $matches = $this->matchesService->getMatches($userId);
-                return $this->sendResponse($matches, 'Matches retrieved successfully.');
-                break;
-            case 'nearby':
-                $matches = $this->matchesService->getNearBy($userId);
-                return $this->sendResponse($matches, 'Matches retrieved successfully.');
-                break;
-            case 'shortedlist':
-                $matches = $this->matchesService->getshortedlist($userId);
-                return $this->sendResponse($matches, 'Matches retrieved successfully.');
-                break;
-            case 'shortedby':
-                $matches = $this->matchesService->getshortedby($userId);
-                return $this->sendResponse($matches, 'Matches retrieved successfully.');
-                break;
-            case 'interested':
-                $matches = $this->matchesService->getInterested($userId);
-                return $this->sendResponse($matches, 'Matches retrieved successfully.');
-                break; 
-            case 'interestedby':
-                $matches = $this->matchesService->getInterestedBy($userId);
-                return $this->sendResponse($matches, 'Matches retrieved successfully.');
-                break;    
-            default:
-                return $this->sendError('Type not found.', array(), 404);
-                break;
+        try {
+            // Validate required parameters
+            $validatedData = $request->validate([
+                'type' => 'required|string|in:just_joined,matches,nearby,shortlisted,shortlisted_by,interested,interested_by',
+                'id' => 'required|integer|min:1'
+            ]);
+
+            $type = $validatedData['type'];
+            $userId = $validatedData['id'];
+            
+            // Get pagination parameters
+            $perPage = $request->get('per_page', 15);
+            $page = $request->get('page', 1);
+            
+            // Validate pagination parameters
+            $perPage = max(1, min(100, (int)$perPage)); // Limit between 1-100
+            $page = max(1, (int)$page);
+
+            switch ($type) {
+                case 'just_joined':
+                    $matches = $this->matchesService->getJustJoined($userId, $perPage, $page);
+                    break;
+                case 'matches':
+                    $matches = $this->matchesService->getMatches($userId, $perPage, $page);
+                    break;
+                case 'nearby':
+                    $matches = $this->matchesService->getNearBy($userId, $perPage, $page);
+                    break;
+                case 'shortlisted':
+                    $matches = $this->matchesService->getShortlisted($userId, $perPage, $page);
+                    break;
+                case 'shortlisted_by':
+                    $matches = $this->matchesService->getShortlistedBy($userId, $perPage, $page);
+                    break;
+                case 'interested':
+                    $matches = $this->matchesService->getInterested($userId, $perPage, $page);
+                    break; 
+                case 'interested_by':
+                    $matches = $this->matchesService->getInterestedBy($userId, $perPage, $page);
+                    break;    
+                default:
+                    return $this->sendError('Invalid match type.', [], 400);
+            }
+
+            return $this->sendResponse($matches, ucfirst(str_replace('_', ' ', $type)) . ' retrieved successfully.');
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return $this->sendError('Validation Error', $e->errors(), 422);
+        } catch (\Exception $e) {
+            return $this->sendError('Error retrieving matches.', ['error' => $e->getMessage()], 500);
         }
     }
 }
