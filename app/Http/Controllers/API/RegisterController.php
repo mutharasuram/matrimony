@@ -85,6 +85,27 @@ class RegisterController extends BaseController
                 'habit' => 'nullable|string|max:255',
                 'isEligible' => 'nullable|boolean',
                 'income' => 'nullable|string|max:255',
+                // Family Details validation rules
+                'father_occupation' => 'nullable|string|max:255',
+                'mother_occupation' => 'nullable|string|max:255',
+                'no_of_brothers' => 'nullable|integer|min:0',
+                'no_of_sisters' => 'nullable|integer|min:0',
+                // Partner Preference validation rules
+                'preferred_age_min' => 'nullable|string|max:255',
+                'preferred_age_max' => 'nullable|string|max:255',
+                'preferred_height_min' => 'nullable|string|max:255',
+                'preferred_height_max' => 'nullable|string|max:255',
+                'preferred_marital_status' => 'nullable|string|max:255',
+                'preferred_physical_status' => 'nullable|string|max:255',
+                'preferred_mother_tongue' => 'nullable|string|max:255',
+                'preferred_subcaste' => 'nullable|string|max:255',
+                'preferred_chevvai_dosham' => 'nullable|string|max:255',
+                'preferred_education' => 'nullable|string|max:255',
+                'preferred_employed_in' => 'nullable|string|max:255',
+                'preferred_occupation' => 'nullable|string|max:255',
+                'preferred_annual_income_min' => 'nullable|string|max:255',
+                'preferred_annual_income_max' => 'nullable|string|max:255',
+                'preferred_country' => 'nullable|string|max:255',
             ]);
 
             if ($validator->fails()) {
@@ -131,6 +152,27 @@ class RegisterController extends BaseController
                 'habit',
                 'isEligible',
                 'income',
+                // Family Details fields
+                'father_occupation',
+                'mother_occupation',
+                'no_of_brothers',
+                'no_of_sisters',
+                // Partner Preference fields
+                'preferred_age_min',
+                'preferred_age_max',
+                'preferred_height_min',
+                'preferred_height_max',
+                'preferred_marital_status',
+                'preferred_physical_status',
+                'preferred_mother_tongue',
+                'preferred_subcaste',
+                'preferred_chevvai_dosham',
+                'preferred_education',
+                'preferred_employed_in',
+                'preferred_occupation',
+                'preferred_annual_income_min',
+                'preferred_annual_income_max',
+                'preferred_country',
             ]);
             $profileData['user_id'] = $user->id;
             Profile::create($profileData);
@@ -157,19 +199,19 @@ class RegisterController extends BaseController
                 $user = Auth::user();
                 $success['token'] =  $user->createToken('auth_token')->plainTextToken;
                 $success['user'] =  User::with('profile','profile.images')->where('id', $user->id)->first();
-                $success['list'] = $this->matchesService->getJustJoined($user->id);
+                // $success['list'] = $this->matchesService->getJustJoined($user->id);
                 return $this->sendResponse($success, 'User login successfully.');
             } else if (Auth::attempt(['m_id' => $request->value, 'password' => $request->password])) {
                 $user = Auth::user();
                 $success['token'] =  $user->createToken('auth_token')->plainTextToken;
                 $success['user'] =  User::with('profile','profile.images')->where('id', $user->id)->first();
-                $success['list'] = $this->matchesService->getJustJoined($user->id);
+                // $success['list'] = $this->matchesService->getJustJoined($user->id);
                 return $this->sendResponse($success, 'User login successfully.');
             } else if (Auth::attempt(['mobile' => $request->value, 'password' => $request->password])) {
                 $user = Auth::user();
                 $success['token'] =  $user->createToken('auth_token')->plainTextToken;
                 $success['user'] =  User::with('profile','profile.images')->where('id', $user->id)->first();
-                $success['list'] = $this->matchesService->getJustJoined($user->id);
+                // $success['list'] = $this->matchesService->getJustJoined($user->id);
                 return $this->sendResponse($success, 'User login successfully.');
             } else {
                 return $this->sendError('Unauthorised.', ['error' => 'Unauthorised']);
@@ -339,6 +381,173 @@ class RegisterController extends BaseController
             return $this->sendResponse($user, 'User details retrieved successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Error', ['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Update profile api
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function updateProfile(Request $request): JsonResponse
+    {
+        DB::beginTransaction();
+        try {
+            $contentType = $request->header('Content-Type');
+            if (str_contains($contentType, 'application/json')) {
+                $input = $request->json()->all(); // For raw JSON
+            } else {
+                $input = $request->all(); // For form-data
+            }
+
+            $validator = Validator::make($input, [
+                'user_id' => 'required|exists:users,id',
+                // Profile-related validation rules
+                'profile_created_by' => 'nullable|in:self,parent,sibling,relative,friend',
+                'gender' => 'nullable|in:male,female',
+                'name' => 'nullable|string|max:255',
+                'dob' => 'nullable|date',
+                'mother_tongue' => 'nullable|string|max:255',
+                'subcaste' => 'nullable|string|max:255',
+                'sub_caste_details' => 'nullable|string|max:255',
+                'willing_to_marry_from_subcaste' => 'nullable|in:yes,no',
+                'marital_status' => 'nullable|in:Unmarried,Widower,Divorced,Separated',
+                'country_living_in' => 'nullable|string|max:255',
+                'residing_state' => 'nullable|string|max:255',
+                'residing_city' => 'nullable|string|max:255',
+                'citizenship' => 'nullable|string|max:255',
+                'height' => 'nullable|string|max:255',
+                'education' => 'nullable|string|max:255',
+                'employed_in' => 'nullable|string|max:255',
+                'occupation' => 'nullable|string|max:255',
+                'annual_income' => 'nullable|string|max:255',
+                'physical_status' => 'nullable|in:normal,physically_challenged',
+                'family_status' => 'nullable|in:middle_class,upper_middle_class,rich_affluent',
+                'family_type' => 'nullable|in:joint_family,nuclear_family',
+                'about_me' => 'nullable|string',
+                'dosham' => 'nullable|in:yes,no,donot_know',
+                'star_nakshatram' => 'nullable|string|max:255',
+                'rasi' => 'nullable|string|max:255',
+                'gothram' => 'nullable|string|max:255',
+                'time_of_birth' => 'nullable|date_format:H:i',
+                'country_of_birth' => 'nullable|string|max:255',
+                'state_of_birth' => 'nullable|string|max:255',
+                'city_of_birth' => 'nullable|string|max:255',
+                'horoscope_chart_style' => 'nullable|string|max:255',
+                'education_category' => 'nullable|string|max:255',
+                'habit' => 'nullable|string|max:255',
+                'isEligible' => 'nullable|boolean',
+                'income' => 'nullable|string|max:255',
+                // Family Details validation rules
+                'father_occupation' => 'nullable|string|max:255',
+                'mother_occupation' => 'nullable|string|max:255',
+                'no_of_brothers' => 'nullable|integer|min:0',
+                'no_of_sisters' => 'nullable|integer|min:0',
+                // Partner Preference validation rules
+                'preferred_age_min' => 'nullable|string|max:255',
+                'preferred_age_max' => 'nullable|string|max:255',
+                'preferred_height_min' => 'nullable|string|max:255',
+                'preferred_height_max' => 'nullable|string|max:255',
+                'preferred_marital_status' => 'nullable|string|max:255',
+                'preferred_physical_status' => 'nullable|string|max:255',
+                'preferred_mother_tongue' => 'nullable|string|max:255',
+                'preferred_subcaste' => 'nullable|string|max:255',
+                'preferred_chevvai_dosham' => 'nullable|string|max:255',
+                'preferred_education' => 'nullable|string|max:255',
+                'preferred_employed_in' => 'nullable|string|max:255',
+                'preferred_occupation' => 'nullable|string|max:255',
+                'preferred_annual_income_min' => 'nullable|string|max:255',
+                'preferred_annual_income_max' => 'nullable|string|max:255',
+                'preferred_country' => 'nullable|string|max:255',
+            ]);
+
+            if ($validator->fails()) {
+                return $this->sendError('Validation Error.', $validator->errors());
+            }
+
+            $user = User::find($input['user_id']);
+            if (!$user) {
+                return $this->sendError('User not found.', ['error' => 'User does not exist.']);
+            }
+
+            $profile = Profile::where('user_id', $user->id)->first();
+            if (!$profile) {
+                return $this->sendError('Profile not found.', ['error' => 'Profile does not exist.']);
+            }
+
+            $profileData = $request->only([
+                'profile_created_by',
+                'gender',
+                'name',
+                'dob',
+                'mother_tongue',
+                'subcaste',
+                'sub_caste_details',
+                'willing_to_marry_from_subcaste',
+                'marital_status',
+                'country_living_in',
+                'residing_state',
+                'residing_city',
+                'citizenship',
+                'height',
+                'education',
+                'employed_in',
+                'occupation',
+                'annual_income',
+                'physical_status',
+                'family_status',
+                'family_type',
+                'about_me',
+                'dosham',
+                'star_nakshatram',
+                'rasi',
+                'gothram',
+                'time_of_birth',
+                'country_of_birth',
+                'state_of_birth',
+                'city_of_birth',
+                'horoscope_chart_style',
+                'education_category',
+                'habit',
+                'isEligible',
+                'income',
+                // Family Details fields
+                'father_occupation',
+                'mother_occupation',
+                'no_of_brothers',
+                'no_of_sisters',
+                // Partner Preference fields
+                'preferred_age_min',
+                'preferred_age_max',
+                'preferred_height_min',
+                'preferred_height_max',
+                'preferred_marital_status',
+                'preferred_physical_status',
+                'preferred_mother_tongue',
+                'preferred_subcaste',
+                'preferred_chevvai_dosham',
+                'preferred_education',
+                'preferred_employed_in',
+                'preferred_occupation',
+                'preferred_annual_income_min',
+                'preferred_annual_income_max',
+                'preferred_country',
+            ]);
+
+            // Remove null values to avoid overwriting existing data with null
+            $profileData = array_filter($profileData, function($value) {
+                return $value !== null;
+            });
+
+            $profile->update($profileData);
+            
+            $success['user'] = User::with('profile','profile.images')->where('id', $user->id)->first();
+            
+            DB::commit();
+            return $this->sendResponse($success, 'Profile updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->sendError('Error', $e->getMessage());
         }
     }
 }

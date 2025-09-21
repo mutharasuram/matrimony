@@ -219,6 +219,96 @@
             </div>
         </div>
 
+        <!-- Family Details Section -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Family Details</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Father's Occupation</label>
+                    <input type="text" name="father_occupation" value="{{ old('father_occupation', $p->father_occupation ?? '') }}" class="w-full px-4 py-2 border rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Mother's Occupation</label>
+                    <input type="text" name="mother_occupation" value="{{ old('mother_occupation', $p->mother_occupation ?? '') }}" class="w-full px-4 py-2 border rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">No. of Brothers</label>
+                    <input type="number" name="no_of_brothers" value="{{ old('no_of_brothers', $p->no_of_brothers ?? '') }}" class="w-full px-4 py-2 border rounded-md" min="0">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">No. of Sisters</label>
+                    <input type="number" name="no_of_sisters" value="{{ old('no_of_sisters', $p->no_of_sisters ?? '') }}" class="w-full px-4 py-2 border rounded-md" min="0">
+                </div>
+            </div>
+        </div>
+
+        <!-- Partner Preference Section -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Partner Preference</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Age Min</label>
+                    <input type="text" name="preferred_age_min" value="{{ old('preferred_age_min', $p->preferred_age_min ?? '') }}" class="w-full px-4 py-2 border rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Age Max</label>
+                    <input type="text" name="preferred_age_max" value="{{ old('preferred_age_max', $p->preferred_age_max ?? '') }}" class="w-full px-4 py-2 border rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Height Min</label>
+                    <input type="text" name="preferred_height_min" value="{{ old('preferred_height_min', $p->preferred_height_min ?? '') }}" class="w-full px-4 py-2 border rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Height Max</label>
+                    <input type="text" name="preferred_height_max" value="{{ old('preferred_height_max', $p->preferred_height_max ?? '') }}" class="w-full px-4 py-2 border rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Marital Status</label>
+                    <input type="text" name="preferred_marital_status" value="{{ old('preferred_marital_status', $p->preferred_marital_status ?? '') }}" class="w-full px-4 py-2 border rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Physical Status</label>
+                    <input type="text" name="preferred_physical_status" value="{{ old('preferred_physical_status', $p->preferred_physical_status ?? '') }}" class="w-full px-4 py-2 border rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Mother Tongue</label>
+                    <input type="text" name="preferred_mother_tongue" value="{{ old('preferred_mother_tongue', $p->preferred_mother_tongue ?? '') }}" class="w-full px-4 py-2 border rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Subcaste</label>
+                    <input type="text" name="preferred_subcaste" value="{{ old('preferred_subcaste', $p->preferred_subcaste ?? '') }}" class="w-full px-4 py-2 border rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Chevvai Dosham</label>
+                    <input type="text" name="preferred_chevvai_dosham" value="{{ old('preferred_chevvai_dosham', $p->preferred_chevvai_dosham ?? '') }}" class="w-full px-4 py-2 border rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Education</label>
+                    <input type="text" name="preferred_education" value="{{ old('preferred_education', $p->preferred_education ?? '') }}" class="w-full px-4 py-2 border rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Employed In</label>
+                    <input type="text" name="preferred_employed_in" value="{{ old('preferred_employed_in', $p->preferred_employed_in ?? '') }}" class="w-full px-4 py-2 border rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Occupation</label>
+                    <input type="text" name="preferred_occupation" value="{{ old('preferred_occupation', $p->preferred_occupation ?? '') }}" class="w-full px-4 py-2 border rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Annual Income Min</label>
+                    <input type="text" name="preferred_annual_income_min" value="{{ old('preferred_annual_income_min', $p->preferred_annual_income_min ?? '') }}" class="w-full px-4 py-2 border rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Annual Income Max</label>
+                    <input type="text" name="preferred_annual_income_max" value="{{ old('preferred_annual_income_max', $p->preferred_annual_income_max ?? '') }}" class="w-full px-4 py-2 border rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Country</label>
+                    <input type="text" name="preferred_country" value="{{ old('preferred_country', $p->preferred_country ?? '') }}" class="w-full px-4 py-2 border rounded-md">
+                </div>
+            </div>
+        </div>
+
         <div>
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Profile Images</h3>
             <input type="file" name="images[]" accept="image/*" multiple class="block w-full text-sm text-gray-700">

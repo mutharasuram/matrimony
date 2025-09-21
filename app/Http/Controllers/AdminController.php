@@ -150,6 +150,27 @@ class AdminController extends Controller
             'state_of_birth' => ['nullable', 'string', 'max:255'],
             'city_of_birth' => ['nullable', 'string', 'max:255'],
             'horoscope_chart_style' => ['nullable', 'string', 'max:255'],
+            // Family Details validation rules
+            'father_occupation' => ['nullable', 'string', 'max:255'],
+            'mother_occupation' => ['nullable', 'string', 'max:255'],
+            'no_of_brothers' => ['nullable', 'integer', 'min:0'],
+            'no_of_sisters' => ['nullable', 'integer', 'min:0'],
+            // Partner Preference validation rules
+            'preferred_age_min' => ['nullable', 'string', 'max:255'],
+            'preferred_age_max' => ['nullable', 'string', 'max:255'],
+            'preferred_height_min' => ['nullable', 'string', 'max:255'],
+            'preferred_height_max' => ['nullable', 'string', 'max:255'],
+            'preferred_marital_status' => ['nullable', 'string', 'max:255'],
+            'preferred_physical_status' => ['nullable', 'string', 'max:255'],
+            'preferred_mother_tongue' => ['nullable', 'string', 'max:255'],
+            'preferred_subcaste' => ['nullable', 'string', 'max:255'],
+            'preferred_chevvai_dosham' => ['nullable', 'string', 'max:255'],
+            'preferred_education' => ['nullable', 'string', 'max:255'],
+            'preferred_employed_in' => ['nullable', 'string', 'max:255'],
+            'preferred_occupation' => ['nullable', 'string', 'max:255'],
+            'preferred_annual_income_min' => ['nullable', 'string', 'max:255'],
+            'preferred_annual_income_max' => ['nullable', 'string', 'max:255'],
+            'preferred_country' => ['nullable', 'string', 'max:255'],
 
             // images
             'images.*' => ['nullable', 'image', 'max:2048'],
@@ -208,6 +229,27 @@ class AdminController extends Controller
         $profile->state_of_birth = $validated['state_of_birth'] ?? null;
         $profile->city_of_birth = $validated['city_of_birth'] ?? null;
         $profile->horoscope_chart_style = $validated['horoscope_chart_style'] ?? null;
+        // Family Details fields
+        $profile->father_occupation = $validated['father_occupation'] ?? null;
+        $profile->mother_occupation = $validated['mother_occupation'] ?? null;
+        $profile->no_of_brothers = $validated['no_of_brothers'] ?? null;
+        $profile->no_of_sisters = $validated['no_of_sisters'] ?? null;
+        // Partner Preference fields
+        $profile->preferred_age_min = $validated['preferred_age_min'] ?? null;
+        $profile->preferred_age_max = $validated['preferred_age_max'] ?? null;
+        $profile->preferred_height_min = $validated['preferred_height_min'] ?? null;
+        $profile->preferred_height_max = $validated['preferred_height_max'] ?? null;
+        $profile->preferred_marital_status = $validated['preferred_marital_status'] ?? null;
+        $profile->preferred_physical_status = $validated['preferred_physical_status'] ?? null;
+        $profile->preferred_mother_tongue = $validated['preferred_mother_tongue'] ?? null;
+        $profile->preferred_subcaste = $validated['preferred_subcaste'] ?? null;
+        $profile->preferred_chevvai_dosham = $validated['preferred_chevvai_dosham'] ?? null;
+        $profile->preferred_education = $validated['preferred_education'] ?? null;
+        $profile->preferred_employed_in = $validated['preferred_employed_in'] ?? null;
+        $profile->preferred_occupation = $validated['preferred_occupation'] ?? null;
+        $profile->preferred_annual_income_min = $validated['preferred_annual_income_min'] ?? null;
+        $profile->preferred_annual_income_max = $validated['preferred_annual_income_max'] ?? null;
+        $profile->preferred_country = $validated['preferred_country'] ?? null;
         $profile->save();
 
         // Handle images upload
@@ -274,6 +316,27 @@ class AdminController extends Controller
             'state_of_birth' => ['nullable', 'string', 'max:255'],
             'city_of_birth' => ['nullable', 'string', 'max:255'],
             'horoscope_chart_style' => ['nullable', 'string', 'max:255'],
+            // Family Details validation rules
+            'father_occupation' => ['nullable', 'string', 'max:255'],
+            'mother_occupation' => ['nullable', 'string', 'max:255'],
+            'no_of_brothers' => ['nullable', 'integer', 'min:0'],
+            'no_of_sisters' => ['nullable', 'integer', 'min:0'],
+            // Partner Preference validation rules
+            'preferred_age_min' => ['nullable', 'string', 'max:255'],
+            'preferred_age_max' => ['nullable', 'string', 'max:255'],
+            'preferred_height_min' => ['nullable', 'string', 'max:255'],
+            'preferred_height_max' => ['nullable', 'string', 'max:255'],
+            'preferred_marital_status' => ['nullable', 'string', 'max:255'],
+            'preferred_physical_status' => ['nullable', 'string', 'max:255'],
+            'preferred_mother_tongue' => ['nullable', 'string', 'max:255'],
+            'preferred_subcaste' => ['nullable', 'string', 'max:255'],
+            'preferred_chevvai_dosham' => ['nullable', 'string', 'max:255'],
+            'preferred_education' => ['nullable', 'string', 'max:255'],
+            'preferred_employed_in' => ['nullable', 'string', 'max:255'],
+            'preferred_occupation' => ['nullable', 'string', 'max:255'],
+            'preferred_annual_income_min' => ['nullable', 'string', 'max:255'],
+            'preferred_annual_income_max' => ['nullable', 'string', 'max:255'],
+            'preferred_country' => ['nullable', 'string', 'max:255'],
 
             // images
             'images.*' => ['nullable', 'image', 'max:2048'],
@@ -331,6 +394,27 @@ class AdminController extends Controller
         $profile->state_of_birth = $validated['state_of_birth'] ?? null;
         $profile->city_of_birth = $validated['city_of_birth'] ?? null;
         $profile->horoscope_chart_style = $validated['horoscope_chart_style'] ?? null;
+        // Family Details fields
+        $profile->father_occupation = $validated['father_occupation'] ?? null;
+        $profile->mother_occupation = $validated['mother_occupation'] ?? null;
+        $profile->no_of_brothers = $validated['no_of_brothers'] ?? null;
+        $profile->no_of_sisters = $validated['no_of_sisters'] ?? null;
+        // Partner Preference fields
+        $profile->preferred_age_min = $validated['preferred_age_min'] ?? null;
+        $profile->preferred_age_max = $validated['preferred_age_max'] ?? null;
+        $profile->preferred_height_min = $validated['preferred_height_min'] ?? null;
+        $profile->preferred_height_max = $validated['preferred_height_max'] ?? null;
+        $profile->preferred_marital_status = $validated['preferred_marital_status'] ?? null;
+        $profile->preferred_physical_status = $validated['preferred_physical_status'] ?? null;
+        $profile->preferred_mother_tongue = $validated['preferred_mother_tongue'] ?? null;
+        $profile->preferred_subcaste = $validated['preferred_subcaste'] ?? null;
+        $profile->preferred_chevvai_dosham = $validated['preferred_chevvai_dosham'] ?? null;
+        $profile->preferred_education = $validated['preferred_education'] ?? null;
+        $profile->preferred_employed_in = $validated['preferred_employed_in'] ?? null;
+        $profile->preferred_occupation = $validated['preferred_occupation'] ?? null;
+        $profile->preferred_annual_income_min = $validated['preferred_annual_income_min'] ?? null;
+        $profile->preferred_annual_income_max = $validated['preferred_annual_income_max'] ?? null;
+        $profile->preferred_country = $validated['preferred_country'] ?? null;
         $profile->user()->associate($user);
         $profile->save();
 

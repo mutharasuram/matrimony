@@ -43,7 +43,28 @@ class Profile extends Model
         'country_of_birth',
         'state_of_birth',
         'city_of_birth',
-        'horoscope_chart_style'
+        'horoscope_chart_style',
+        // Family Details Fields
+        'father_occupation',
+        'mother_occupation',
+        'no_of_brothers',
+        'no_of_sisters',
+        // Partner Preference Fields
+        'preferred_age_min',
+        'preferred_age_max',
+        'preferred_height_min',
+        'preferred_height_max',
+        'preferred_marital_status',
+        'preferred_physical_status',
+        'preferred_mother_tongue',
+        'preferred_subcaste',
+        'preferred_chevvai_dosham',
+        'preferred_education',
+        'preferred_employed_in',
+        'preferred_occupation',
+        'preferred_annual_income_min',
+        'preferred_annual_income_max',
+        'preferred_country'
     ];
 
     public function user()

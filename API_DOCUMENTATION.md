@@ -78,7 +78,26 @@ All API responses follow a consistent format:
     "education_category": "Engineering",
     "habit": "Non-smoker",
     "isEligible": true,
-    "income": "500000"
+    "income": "500000",
+    "father_occupation": "Engineer",
+    "mother_occupation": "Teacher",
+    "no_of_brothers": 1,
+    "no_of_sisters": 0,
+    "preferred_age_min": "25",
+    "preferred_age_max": "35",
+    "preferred_height_min": "5'4\"",
+    "preferred_height_max": "5'8\"",
+    "preferred_marital_status": "Unmarried",
+    "preferred_physical_status": "normal",
+    "preferred_mother_tongue": "English",
+    "preferred_subcaste": "Brahmin",
+    "preferred_chevvai_dosham": "no",
+    "preferred_education": "Bachelor's Degree",
+    "preferred_employed_in": "Private",
+    "preferred_occupation": "Software Engineer",
+    "preferred_annual_income_min": "300000",
+    "preferred_annual_income_max": "800000",
+    "preferred_country": "India"
 }
 ```
 
@@ -121,6 +140,25 @@ All API responses follow a consistent format:
 - `habit`: nullable|string|max:255
 - `isEligible`: nullable|boolean
 - `income`: nullable|string|max:255
+- `father_occupation`: nullable|string|max:255
+- `mother_occupation`: nullable|string|max:255
+- `no_of_brothers`: nullable|integer|min:0
+- `no_of_sisters`: nullable|integer|min:0
+- `preferred_age_min`: nullable|string|max:255
+- `preferred_age_max`: nullable|string|max:255
+- `preferred_height_min`: nullable|string|max:255
+- `preferred_height_max`: nullable|string|max:255
+- `preferred_marital_status`: nullable|string|max:255
+- `preferred_physical_status`: nullable|string|max:255
+- `preferred_mother_tongue`: nullable|string|max:255
+- `preferred_subcaste`: nullable|string|max:255
+- `preferred_chevvai_dosham`: nullable|string|max:255
+- `preferred_education`: nullable|string|max:255
+- `preferred_employed_in`: nullable|string|max:255
+- `preferred_occupation`: nullable|string|max:255
+- `preferred_annual_income_min`: nullable|string|max:255
+- `preferred_annual_income_max`: nullable|string|max:255
+- `preferred_country`: nullable|string|max:255
 
 **Response:**
 ```json
@@ -346,6 +384,111 @@ All API responses follow a consistent format:
 }
 ```
 
+### 1.7 Update Profile
+**Endpoint:** `POST /updateProfile`
+
+**Description:** Update user profile with new family details and partner preference fields
+
+**Request Body:**
+```json
+{
+    "user_id": 1,
+    "name": "John Smith",
+    "height": "5'9\"",
+    "about_me": "Updated about me section",
+    "father_occupation": "Engineer",
+    "mother_occupation": "Teacher",
+    "no_of_brothers": 1,
+    "no_of_sisters": 0,
+    "preferred_age_min": "25",
+    "preferred_age_max": "35",
+    "preferred_height_min": "5'4\"",
+    "preferred_height_max": "5'8\"",
+    "preferred_marital_status": "Unmarried",
+    "preferred_physical_status": "normal",
+    "preferred_mother_tongue": "English",
+    "preferred_subcaste": "Brahmin",
+    "preferred_chevvai_dosham": "no",
+    "preferred_education": "Bachelor's Degree",
+    "preferred_employed_in": "Private",
+    "preferred_occupation": "Software Engineer",
+    "preferred_annual_income_min": "300000",
+    "preferred_annual_income_max": "800000",
+    "preferred_country": "India"
+}
+```
+
+**Validation Rules:**
+- `user_id`: required|exists:users,id
+- All other fields are optional (nullable)
+- Same validation rules as registration for each field
+
+**Response (Success):**
+```json
+{
+    "success": true,
+    "data": {
+        "user": {
+            "id": 1,
+            "name": "John Smith",
+            "email": "john@example.com",
+            "mobile": "9876543210",
+            "m_id": "M123456",
+            "profile": {
+                "id": 1,
+                "name": "John Smith",
+                "height": "5'9\"",
+                "about_me": "Updated about me section",
+                "father_occupation": "Engineer",
+                "mother_occupation": "Teacher",
+                "no_of_brothers": 1,
+                "no_of_sisters": 0,
+                "preferred_age_min": "25",
+                "preferred_age_max": "35",
+                "preferred_height_min": "5'4\"",
+                "preferred_height_max": "5'8\"",
+                "preferred_marital_status": "Unmarried",
+                "preferred_physical_status": "normal",
+                "preferred_mother_tongue": "English",
+                "preferred_subcaste": "Brahmin",
+                "preferred_chevvai_dosham": "no",
+                "preferred_education": "Bachelor's Degree",
+                "preferred_employed_in": "Private",
+                "preferred_occupation": "Software Engineer",
+                "preferred_annual_income_min": "300000",
+                "preferred_annual_income_max": "800000",
+                "preferred_country": "India",
+                "updated_at": "2024-01-01T12:00:00.000000Z"
+            },
+            "images": []
+        }
+    },
+    "message": "Profile updated successfully"
+}
+```
+
+**Response (User Not Found - 404):**
+```json
+{
+    "success": false,
+    "message": "User not found",
+    "data": {
+        "error": "User does not exist"
+    }
+}
+```
+
+**Response (Profile Not Found - 404):**
+```json
+{
+    "success": false,
+    "message": "Profile not found",
+    "data": {
+        "error": "Profile does not exist"
+    }
+}
+```
+
 ---
 
 ## 2. Profile Management
@@ -411,7 +554,7 @@ All API responses follow a consistent format:
 ### 2.2 Update Profile
 **Endpoint:** `POST /profile/update`
 
-**Description:** Update existing user profile
+**Description:** Update existing user profile (Legacy endpoint - use /updateProfile for new fields)
 
 **Request Body:**
 ```json
@@ -600,6 +743,25 @@ profile_img[]: [file1.jpg, file2.jpg, file3.jpg]
             "state_of_birth": "Tamil Nadu",
             "city_of_birth": "Chennai",
             "horoscope_chart_style": "North Indian",
+            "father_occupation": "Engineer",
+            "mother_occupation": "Teacher",
+            "no_of_brothers": 1,
+            "no_of_sisters": 0,
+            "preferred_age_min": "25",
+            "preferred_age_max": "35",
+            "preferred_height_min": "5'4\"",
+            "preferred_height_max": "5'8\"",
+            "preferred_marital_status": "Unmarried",
+            "preferred_physical_status": "normal",
+            "preferred_mother_tongue": "English",
+            "preferred_subcaste": "Brahmin",
+            "preferred_chevvai_dosham": "no",
+            "preferred_education": "Bachelor's Degree",
+            "preferred_employed_in": "Private",
+            "preferred_occupation": "Software Engineer",
+            "preferred_annual_income_min": "300000",
+            "preferred_annual_income_max": "800000",
+            "preferred_country": "India",
             "created_at": "2024-01-01T00:00:00.000000Z",
             "updated_at": "2024-01-01T00:00:00.000000Z"
         },
@@ -1280,6 +1442,9 @@ GET /matches?type=matches&id=1&per_page=10&page=1
 13. **Soft Deletes**: User accounts support soft deletion
 14. **Interest Management**: Supports multiple interest statuses (pending, accepted, declined, replied)
 15. **Shortlist Management**: Toggle functionality to add/remove users from shortlist
+16. **Family Details**: New fields for father's occupation, mother's occupation, number of brothers and sisters
+17. **Partner Preferences**: Comprehensive preference fields for age, height, marital status, physical status, mother tongue, subcaste, education, employment, occupation, income range, and country
+18. **Profile Updates**: Two update endpoints available - legacy `/profile/update` and new `/updateProfile` with all fields
 
 ## Testing the API
 
@@ -1332,8 +1497,36 @@ curl -X POST http://your-domain.com/api/image_upload \
   -F "profile_img[]=@/path/to/image1.jpg" \
   -F "profile_img[]=@/path/to/image2.jpg"
 
-# Update profile
+# Update profile (legacy endpoint)
 curl -X POST http://your-domain.com/api/profile/update \
   -H "Content-Type: application/json" \
   -d '{"user_id":1,"name":"John Smith","height":"5'\''9\""}'
+
+# Update profile with new fields
+curl -X POST http://your-domain.com/api/updateProfile \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user_id":1,
+    "name":"John Smith",
+    "height":"5'\''9\"",
+    "father_occupation":"Engineer",
+    "mother_occupation":"Teacher",
+    "no_of_brothers":1,
+    "no_of_sisters":0,
+    "preferred_age_min":"25",
+    "preferred_age_max":"35",
+    "preferred_height_min":"5'\''4\"",
+    "preferred_height_max":"5'\''8\"",
+    "preferred_marital_status":"Unmarried",
+    "preferred_physical_status":"normal",
+    "preferred_mother_tongue":"English",
+    "preferred_subcaste":"Brahmin",
+    "preferred_chevvai_dosham":"no",
+    "preferred_education":"Bachelor'\''s Degree",
+    "preferred_employed_in":"Private",
+    "preferred_occupation":"Software Engineer",
+    "preferred_annual_income_min":"300000",
+    "preferred_annual_income_max":"800000",
+    "preferred_country":"India"
+  }'
 ```

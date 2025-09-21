@@ -19,6 +19,7 @@ Route::controller(RegisterController::class)->group(function(){
     Route::post('verifyOtp', 'verifyOtp');
     Route::post('checkIsExist', 'checkIsExist');
     Route::post('updatePassword', 'updatePassword');
+    Route::post('updateProfile', 'updateProfile');
 });
          
 // Route::middleware('auth:sanctum')->group( function () {
