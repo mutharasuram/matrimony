@@ -171,6 +171,14 @@ class AdminController extends Controller
             'preferred_annual_income_min' => ['nullable', 'string', 'max:255'],
             'preferred_annual_income_max' => ['nullable', 'string', 'max:255'],
             'preferred_country' => ['nullable', 'string', 'max:255'],
+            'preferred_citizenship' => ['nullable', 'string', 'max:255'],
+            'eating_habit' => ['nullable', 'string', 'max:255'],
+            'drinking_habit' => ['nullable', 'string', 'max:255'],
+            'smoking_habit' => ['nullable', 'string', 'max:255'],
+            'hobbies_and_interests' => ['nullable', 'string'],
+            'music' => ['nullable', 'string'],
+            'sports' => ['nullable', 'string'],
+            'food' => ['nullable', 'string'],
 
             // images
             'images.*' => ['nullable', 'image', 'max:2048'],
@@ -250,6 +258,14 @@ class AdminController extends Controller
         $profile->preferred_annual_income_min = $validated['preferred_annual_income_min'] ?? null;
         $profile->preferred_annual_income_max = $validated['preferred_annual_income_max'] ?? null;
         $profile->preferred_country = $validated['preferred_country'] ?? null;
+        $profile->preferred_citizenship = $validated['preferred_citizenship'] ?? null;
+        $profile->eating_habit = $validated['eating_habit'] ?? null;
+        $profile->drinking_habit = $validated['drinking_habit'] ?? null;
+        $profile->smoking_habit = $validated['smoking_habit'] ?? null;
+        $profile->hobbies_and_interests = $validated['hobbies_and_interests'] ?? null;
+        $profile->music = $validated['music'] ?? null;
+        $profile->sports = $validated['sports'] ?? null;
+        $profile->food = $validated['food'] ?? null;
         $profile->save();
 
         // Handle images upload
@@ -337,6 +353,14 @@ class AdminController extends Controller
             'preferred_annual_income_min' => ['nullable', 'string', 'max:255'],
             'preferred_annual_income_max' => ['nullable', 'string', 'max:255'],
             'preferred_country' => ['nullable', 'string', 'max:255'],
+            'preferred_citizenship' => ['nullable', 'string', 'max:255'],
+            'eating_habit' => ['nullable', 'string', 'max:255'],
+            'drinking_habit' => ['nullable', 'string', 'max:255'],
+            'smoking_habit' => ['nullable', 'string', 'max:255'],
+            'hobbies_and_interests' => ['nullable', 'string'],
+            'music' => ['nullable', 'string'],
+            'sports' => ['nullable', 'string'],
+            'food' => ['nullable', 'string'],
 
             // images
             'images.*' => ['nullable', 'image', 'max:2048'],
@@ -415,6 +439,14 @@ class AdminController extends Controller
         $profile->preferred_annual_income_min = $validated['preferred_annual_income_min'] ?? null;
         $profile->preferred_annual_income_max = $validated['preferred_annual_income_max'] ?? null;
         $profile->preferred_country = $validated['preferred_country'] ?? null;
+        $profile->preferred_citizenship = $validated['preferred_citizenship'] ?? null;
+        $profile->eating_habit = $validated['eating_habit'] ?? null;
+        $profile->drinking_habit = $validated['drinking_habit'] ?? null;
+        $profile->smoking_habit = $validated['smoking_habit'] ?? null;
+        $profile->hobbies_and_interests = $validated['hobbies_and_interests'] ?? null;
+        $profile->music = $validated['music'] ?? null;
+        $profile->sports = $validated['sports'] ?? null;
+        $profile->food = $validated['food'] ?? null;
         $profile->user()->associate($user);
         $profile->save();
 

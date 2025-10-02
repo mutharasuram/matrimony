@@ -106,6 +106,14 @@ class RegisterController extends BaseController
                 'preferred_annual_income_min' => 'nullable|string|max:255',
                 'preferred_annual_income_max' => 'nullable|string|max:255',
                 'preferred_country' => 'nullable|string|max:255',
+                'preferred_citizenship' => 'nullable|string|max:255',
+                'eating_habit' => 'nullable|string|max:255',
+                'drinking_habit' => 'nullable|string|max:255',
+                'smoking_habit' => 'nullable|string|max:255',
+                'hobbies_and_interests' => 'nullable|string',
+                'music' => 'nullable|string',
+                'sports' => 'nullable|string',
+                'food' => 'nullable|string',
             ]);
 
             if ($validator->fails()) {
@@ -173,12 +181,20 @@ class RegisterController extends BaseController
                 'preferred_annual_income_min',
                 'preferred_annual_income_max',
                 'preferred_country',
+                'preferred_citizenship',
+                'eating_habit',
+                'drinking_habit',
+                'smoking_habit',
+                'hobbies_and_interests',
+                'music',
+                'sports',
+                'food'
             ]);
             $profileData['user_id'] = $user->id;
             Profile::create($profileData);
             $success['token'] =  $user->createToken('auth_token')->plainTextToken;
             $success['user'] =  User::with('profile','profile.images')->where('id', $user->id)->first();
-            $success['list'] = $this->matchesService->getJustJoined($user->id);
+            // $success['list'] = $this->matchesService->getJustJoined($user->id);
             DB::commit();
             return $this->sendResponse($success, 'User register successfully.');
         } catch (\Exception $e) {
@@ -459,6 +475,14 @@ class RegisterController extends BaseController
                 'preferred_annual_income_min' => 'nullable|string|max:255',
                 'preferred_annual_income_max' => 'nullable|string|max:255',
                 'preferred_country' => 'nullable|string|max:255',
+                'preferred_citizenship' => 'nullable|string|max:255',
+                'eating_habit' => 'nullable|string|max:255',
+                'drinking_habit' => 'nullable|string|max:255',
+                'smoking_habit' => 'nullable|string|max:255',
+                'hobbies_and_interests' => 'nullable|string',
+                'music' => 'nullable|string',
+                'sports' => 'nullable|string',
+                'food' => 'nullable|string',
             ]);
 
             if ($validator->fails()) {
@@ -532,6 +556,10 @@ class RegisterController extends BaseController
                 'preferred_annual_income_min',
                 'preferred_annual_income_max',
                 'preferred_country',
+                'preferred_citizenship',
+                'eating_habit',
+                'drinking_habit',
+                'smoking_habit',
             ]);
 
             // Remove null values to avoid overwriting existing data with null

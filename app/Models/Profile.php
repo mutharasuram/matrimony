@@ -64,7 +64,15 @@ class Profile extends Model
         'preferred_occupation',
         'preferred_annual_income_min',
         'preferred_annual_income_max',
-        'preferred_country'
+        'preferred_country',
+        'preferred_citizenship',
+        'eating_habit',
+        'drinking_habit',
+        'smoking_habit',
+        'hobbies_and_interests',
+        'music',
+        'sports',
+        'food'
     ];
 
     public function user()

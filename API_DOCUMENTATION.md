@@ -97,7 +97,15 @@ All API responses follow a consistent format:
     "preferred_occupation": "Software Engineer",
     "preferred_annual_income_min": "300000",
     "preferred_annual_income_max": "800000",
-    "preferred_country": "India"
+    "preferred_country": "India",
+    "preferred_citizenship": "Indian",
+    "eating_habit": "Vegetarian",
+    "drinking_habit": "Non-drinker",
+    "smoking_habit": "Non-smoker",
+    "hobbies_and_interests": "Music, Sports, Food, Reading, Travel",
+    "music": "Classical, Rock, Pop",
+    "sports": "Cricket, Football, Badminton",
+    "food": "Indian, Chinese, Italian"
 }
 ```
 
@@ -159,6 +167,14 @@ All API responses follow a consistent format:
 - `preferred_annual_income_min`: nullable|string|max:255
 - `preferred_annual_income_max`: nullable|string|max:255
 - `preferred_country`: nullable|string|max:255
+- `preferred_citizenship`: nullable|string|max:255
+- `eating_habit`: nullable|string|max:255
+- `drinking_habit`: nullable|string|max:255
+- `smoking_habit`: nullable|string|max:255
+- `hobbies_and_interests`: nullable|string
+- `music`: nullable|string
+- `sports`: nullable|string
+- `food`: nullable|string
 
 **Response:**
 ```json
@@ -414,7 +430,15 @@ All API responses follow a consistent format:
     "preferred_occupation": "Software Engineer",
     "preferred_annual_income_min": "300000",
     "preferred_annual_income_max": "800000",
-    "preferred_country": "India"
+    "preferred_country": "India",
+    "preferred_citizenship": "Indian",
+    "eating_habit": "Vegetarian",
+    "drinking_habit": "Non-drinker",
+    "smoking_habit": "Non-smoker",
+    "hobbies_and_interests": "Music, Sports, Food, Reading, Travel",
+    "music": "Classical, Rock, Pop",
+    "sports": "Cricket, Football, Badminton",
+    "food": "Indian, Chinese, Italian"
 }
 ```
 
@@ -1527,6 +1551,14 @@ curl -X POST http://your-domain.com/api/updateProfile \
     "preferred_occupation":"Software Engineer",
     "preferred_annual_income_min":"300000",
     "preferred_annual_income_max":"800000",
-    "preferred_country":"India"
+    "preferred_country":"India",
+    "preferred_citizenship":"Indian",
+    "eating_habit":"Vegetarian",
+    "drinking_habit":"Non-drinker",
+    "smoking_habit":"Non-smoker",
+    "hobbies_and_interests":"Music, Sports, Food, Reading, Travel",
+    "music":"Classical, Rock, Pop",
+    "sports":"Cricket, Football, Badminton",
+    "food":"Indian, Chinese, Italian"
   }'
 ```

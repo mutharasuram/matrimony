@@ -219,6 +219,29 @@
             </div>
         </div>
 
+        <!-- Hobbies & Interests Section -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Hobbies & Interests</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Hobbies & Interests</label>
+                    <textarea name="hobbies_and_interests" class="w-full px-4 py-2 border rounded-md" rows="3" placeholder="e.g., Music, Sports, Food, Reading, Travel">{{ old('hobbies_and_interests', $p->hobbies_and_interests ?? '') }}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Music</label>
+                    <textarea name="music" class="w-full px-4 py-2 border rounded-md" rows="2" placeholder="e.g., Classical, Rock, Pop">{{ old('music', $p->music ?? '') }}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Sports</label>
+                    <textarea name="sports" class="w-full px-4 py-2 border rounded-md" rows="2" placeholder="e.g., Cricket, Football, Badminton">{{ old('sports', $p->sports ?? '') }}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Food</label>
+                    <textarea name="food" class="w-full px-4 py-2 border rounded-md" rows="2" placeholder="e.g., Indian, Chinese, Italian">{{ old('food', $p->food ?? '') }}</textarea>
+                </div>
+            </div>
+        </div>
+
         <!-- Family Details Section -->
         <div>
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Family Details</h3>
