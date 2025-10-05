@@ -17,6 +17,16 @@ class ProfileImg extends Model
     protected $table = 'profile_img';
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'profile_id',
+        'img_path',
+    ];
+
+    /**
      * Define the relationship to the Profile model.
      */
     public function profile()

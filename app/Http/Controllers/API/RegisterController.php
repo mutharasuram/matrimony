@@ -114,6 +114,14 @@ class RegisterController extends BaseController
                 'music' => 'nullable|string',
                 'sports' => 'nullable|string',
                 'food' => 'nullable|string',
+                // New preference fields
+                'preferred_eating_habit' => 'nullable|string|max:255',
+                'preferred_drinking_habit' => 'nullable|string|max:255',
+                'preferred_smoking_habit' => 'nullable|string|max:255',
+                'preferred_hobbies_and_interests' => 'nullable|string',
+                'preferred_music' => 'nullable|string',
+                'preferred_sports' => 'nullable|string',
+                'preferred_food' => 'nullable|string',
             ]);
 
             if ($validator->fails()) {
@@ -188,7 +196,15 @@ class RegisterController extends BaseController
                 'hobbies_and_interests',
                 'music',
                 'sports',
-                'food'
+                'food',
+                // New preference fields
+                'preferred_eating_habit',
+                'preferred_drinking_habit',
+                'preferred_smoking_habit',
+                'preferred_hobbies_and_interests',
+                'preferred_music',
+                'preferred_sports',
+                'preferred_food'
             ]);
             $profileData['user_id'] = $user->id;
             Profile::create($profileData);
@@ -483,6 +499,14 @@ class RegisterController extends BaseController
                 'music' => 'nullable|string',
                 'sports' => 'nullable|string',
                 'food' => 'nullable|string',
+                // New preference fields
+                'preferred_eating_habit' => 'nullable|string|max:255',
+                'preferred_drinking_habit' => 'nullable|string|max:255',
+                'preferred_smoking_habit' => 'nullable|string|max:255',
+                'preferred_hobbies_and_interests' => 'nullable|string',
+                'preferred_music' => 'nullable|string',
+                'preferred_sports' => 'nullable|string',
+                'preferred_food' => 'nullable|string',
             ]);
 
             if ($validator->fails()) {
@@ -560,6 +584,14 @@ class RegisterController extends BaseController
                 'eating_habit',
                 'drinking_habit',
                 'smoking_habit',
+                // New preference fields
+                'preferred_eating_habit',
+                'preferred_drinking_habit',
+                'preferred_smoking_habit',
+                'preferred_hobbies_and_interests',
+                'preferred_music',
+                'preferred_sports',
+                'preferred_food',
             ]);
 
             // Remove null values to avoid overwriting existing data with null

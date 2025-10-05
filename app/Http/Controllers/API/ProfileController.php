@@ -93,6 +93,14 @@ class ProfileController extends BaseController
                 'state_of_birth' => 'nullable|string|max:255',
                 'city_of_birth' => 'nullable|string|max:255',
                 'horoscope_chart_style' => 'nullable|string|max:255',
+                // New preference fields
+                'preferred_eating_habit' => 'nullable|string|max:255',
+                'preferred_drinking_habit' => 'nullable|string|max:255',
+                'preferred_smoking_habit' => 'nullable|string|max:255',
+                'preferred_hobbies_and_interests' => 'nullable|string',
+                'preferred_music' => 'nullable|string',
+                'preferred_sports' => 'nullable|string',
+                'preferred_food' => 'nullable|string',
             ]);
 
             $userId = $validatedData['user_id'];
@@ -349,6 +357,44 @@ class ProfileController extends BaseController
             return $this->sendError('Validation Error', $e->errors(), 422);
         } catch (\Exception $e) {
             return $this->sendError('Error retrieving user details.', ['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function deleteProfileImage(Request $request)
+    {
+        try {
+            $validatedData = $request->validate([
+                'image_id' => 'required|integer|exists:profile_img,id',
+            ]);
+
+            $imageId = $validatedData['image_id'];
+
+            // Find the profile image
+            $profileImage = ProfileImg::find($imageId);
+
+            if (!$profileImage) {
+                return $this->sendError('Profile image not found.', [], 404);
+            }
+
+            // Delete the physical file from storage
+            $filePath = storage_path('app/public/' . $profileImage->img_path);
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+
+            // Delete the database record
+            $profileImage->delete();
+
+            return $this->sendResponse([
+                'deleted' => true,
+                'image_id' => $imageId,
+                'deleted_path' => $profileImage->img_path
+            ], 'Profile image deleted successfully!');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return $this->sendError('Validation Error', $e->errors(), 422);
+        } catch (\Exception $e) {
+            return $this->sendError('Error deleting profile image.', ['error' => $e->getMessage()], 500);
         }
     }
 }

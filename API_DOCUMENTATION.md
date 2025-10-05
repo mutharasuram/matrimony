@@ -105,7 +105,14 @@ All API responses follow a consistent format:
     "hobbies_and_interests": "Music, Sports, Food, Reading, Travel",
     "music": "Classical, Rock, Pop",
     "sports": "Cricket, Football, Badminton",
-    "food": "Indian, Chinese, Italian"
+    "food": "Indian, Chinese, Italian",
+    "preferred_eating_habit": "Vegetarian",
+    "preferred_drinking_habit": "Non-drinker",
+    "preferred_smoking_habit": "Non-smoker",
+    "preferred_hobbies_and_interests": "Music, Sports, Reading, Travel",
+    "preferred_music": "Classical, Rock, Pop",
+    "preferred_sports": "Cricket, Football, Badminton",
+    "preferred_food": "Indian, Chinese, Italian"
 }
 ```
 
@@ -175,6 +182,13 @@ All API responses follow a consistent format:
 - `music`: nullable|string
 - `sports`: nullable|string
 - `food`: nullable|string
+- `preferred_eating_habit`: nullable|string|max:255
+- `preferred_drinking_habit`: nullable|string|max:255
+- `preferred_smoking_habit`: nullable|string|max:255
+- `preferred_hobbies_and_interests`: nullable|string
+- `preferred_music`: nullable|string
+- `preferred_sports`: nullable|string
+- `preferred_food`: nullable|string
 
 **Response:**
 ```json
@@ -438,7 +452,14 @@ All API responses follow a consistent format:
     "hobbies_and_interests": "Music, Sports, Food, Reading, Travel",
     "music": "Classical, Rock, Pop",
     "sports": "Cricket, Football, Badminton",
-    "food": "Indian, Chinese, Italian"
+    "food": "Indian, Chinese, Italian",
+    "preferred_eating_habit": "Vegetarian",
+    "preferred_drinking_habit": "Non-drinker",
+    "preferred_smoking_habit": "Non-smoker",
+    "preferred_hobbies_and_interests": "Music, Sports, Reading, Travel",
+    "preferred_music": "Classical, Rock, Pop",
+    "preferred_sports": "Cricket, Football, Badminton",
+    "preferred_food": "Indian, Chinese, Italian"
 }
 ```
 
@@ -707,7 +728,55 @@ profile_img[]: [file1.jpg, file2.jpg, file3.jpg]
 }
 ```
 
-### 2.4 Get User Details
+### 2.4 Delete Profile Image
+**Endpoint:** `POST /image_delete`
+
+**Description:** Delete a profile image by its ID
+
+**Request Body:**
+```json
+{
+    "image_id": 1
+}
+```
+
+**Validation Rules:**
+- `image_id`: required|integer|exists:profile_img,id
+
+**Response (Success):**
+```json
+{
+    "success": true,
+    "data": {
+        "deleted": true,
+        "image_id": 1,
+        "deleted_path": "profile_images/image1.jpg"
+    },
+    "message": "Profile image deleted successfully!"
+}
+```
+
+**Response (Image Not Found - 404):**
+```json
+{
+    "success": false,
+    "message": "Profile image not found",
+    "data": []
+}
+```
+
+**Response (Validation Error - 422):**
+```json
+{
+    "success": false,
+    "message": "Validation Error",
+    "data": {
+        "image_id": ["The image id field is required."]
+    }
+}
+```
+
+### 2.5 Get User Details
 **Endpoint:** `POST /user-details`
 
 **Description:** Get complete user profile with images
@@ -803,7 +872,7 @@ profile_img[]: [file1.jpg, file2.jpg, file3.jpg]
 }
 ```
 
-### 2.5 Delete Account
+### 2.6 Delete Account
 **Endpoint:** `POST /delete_account`
 
 **Description:** Delete user account permanently
@@ -1520,6 +1589,11 @@ curl -X POST http://your-domain.com/api/image_upload \
   -F "id=1" \
   -F "profile_img[]=@/path/to/image1.jpg" \
   -F "profile_img[]=@/path/to/image2.jpg"
+
+# Delete profile image
+curl -X POST http://your-domain.com/api/image_delete \
+  -H "Content-Type: application/json" \
+  -d '{"image_id": 1}'
 
 # Update profile (legacy endpoint)
 curl -X POST http://your-domain.com/api/profile/update \

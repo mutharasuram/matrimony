@@ -326,6 +326,45 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Country</label>
                     <input type="text" name="preferred_country" value="{{ old('preferred_country') }}" class="w-full px-4 py-2 border rounded-md">
                 </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Citizenship</label>
+                    <input type="text" name="preferred_citizenship" value="{{ old('preferred_citizenship') }}" class="w-full px-4 py-2 border rounded-md">
+                </div>
+            </div>
+        </div>
+
+        <!-- New Preference Fields Section -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Additional Preferences</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Eating Habit</label>
+                    <input type="text" name="preferred_eating_habit" value="{{ old('preferred_eating_habit') }}" class="w-full px-4 py-2 border rounded-md" placeholder="e.g., Vegetarian, Non-vegetarian">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Drinking Habit</label>
+                    <input type="text" name="preferred_drinking_habit" value="{{ old('preferred_drinking_habit') }}" class="w-full px-4 py-2 border rounded-md" placeholder="e.g., Non-drinker, Occasional">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Smoking Habit</label>
+                    <input type="text" name="preferred_smoking_habit" value="{{ old('preferred_smoking_habit') }}" class="w-full px-4 py-2 border rounded-md" placeholder="e.g., Non-smoker, Occasional">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Hobbies & Interests</label>
+                    <textarea name="preferred_hobbies_and_interests" class="w-full px-4 py-2 border rounded-md" rows="2" placeholder="e.g., Music, Sports, Reading, Travel">{{ old('preferred_hobbies_and_interests') }}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Music</label>
+                    <textarea name="preferred_music" class="w-full px-4 py-2 border rounded-md" rows="2" placeholder="e.g., Classical, Rock, Pop">{{ old('preferred_music') }}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Sports</label>
+                    <textarea name="preferred_sports" class="w-full px-4 py-2 border rounded-md" rows="2" placeholder="e.g., Cricket, Football, Badminton">{{ old('preferred_sports') }}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Food</label>
+                    <textarea name="preferred_food" class="w-full px-4 py-2 border rounded-md" rows="2" placeholder="e.g., Indian, Chinese, Italian">{{ old('preferred_food') }}</textarea>
+                </div>
             </div>
         </div>
 
