@@ -81,8 +81,8 @@ class ProfileController extends BaseController
                 'occupation' => 'nullable|string|max:255',
                 'annual_income' => 'nullable|string|max:255',
                 'physical_status' => 'sometimes|in:normal,physically_challenged',
-                'family_status' => 'sometimes|in:middle_class,upper_middle class,rich_affluent',
-                'family_type' => 'sometimes|in:joint_family,nuclear_family',
+                'family_status' => 'sometimes|in:poor,lower_middle,middle_class,upper_middle class,rich_affluent',
+                'family_type' => 'sometimes|in:joint_family,nuclear_family,small_family',
                 'about_me' => 'nullable|string',
                 'dosham' => 'sometimes|in:yes,no,donot_know',
                 'star_nakshatram' => 'nullable|string|max:255',
@@ -101,6 +101,9 @@ class ProfileController extends BaseController
                 'preferred_music' => 'nullable|string',
                 'preferred_sports' => 'nullable|string',
                 'preferred_food' => 'nullable|string',
+                // New fields from migration
+                'about_my_family' => 'nullable|string|max:255',
+                'fewlines_about_my_partner' => 'nullable|string|max:255',
             ]);
 
             $userId = $validatedData['user_id'];

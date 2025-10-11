@@ -137,8 +137,8 @@ class AdminController extends Controller
             'occupation' => ['nullable', 'string', 'max:255'],
             'annual_income' => ['nullable', 'string', 'max:255'],
             'physical_status' => ['required', Rule::in(['normal', 'physically_challenged'])],
-            'family_status' => ['required', Rule::in(['middle_class', 'upper_middle class', 'rich_affluent'])],
-            'family_type' => ['required', Rule::in(['joint_family', 'nuclear_family'])],
+            'family_status' => ['required', Rule::in(['poor', 'lower_middle', 'middle_class', 'upper_middle class', 'rich_affluent'])],
+            'family_type' => ['required', Rule::in(['joint_family', 'nuclear_family', 'small_family'])],
             'about_me' => ['nullable', 'string'],
             'dosham' => ['nullable', 'string', 'max:50'],
             'star_nakshatram' => ['nullable', Rule::in($stars)],
@@ -187,6 +187,9 @@ class AdminController extends Controller
             'preferred_music' => ['nullable', 'string'],
             'preferred_sports' => ['nullable', 'string'],
             'preferred_food' => ['nullable', 'string'],
+            // New fields from migration
+            'about_my_family' => ['nullable', 'string', 'max:255'],
+            'fewlines_about_my_partner' => ['nullable', 'string', 'max:255'],
 
             // images
             'images.*' => ['nullable', 'image', 'max:2048'],
@@ -282,6 +285,9 @@ class AdminController extends Controller
         $profile->preferred_music = $validated['preferred_music'] ?? null;
         $profile->preferred_sports = $validated['preferred_sports'] ?? null;
         $profile->preferred_food = $validated['preferred_food'] ?? null;
+        // New fields from migration
+        $profile->about_my_family = $validated['about_my_family'] ?? null;
+        $profile->fewlines_about_my_partner = $validated['fewlines_about_my_partner'] ?? null;
         $profile->save();
 
         // Handle images upload
@@ -335,8 +341,8 @@ class AdminController extends Controller
             'occupation' => ['nullable', 'string', 'max:255'],
             'annual_income' => ['nullable', 'string', 'max:255'],
             'physical_status' => ['required', Rule::in(['normal', 'physically_challenged'])],
-            'family_status' => ['required', Rule::in(['middle_class', 'upper_middle class', 'rich_affluent'])],
-            'family_type' => ['required', Rule::in(['joint_family', 'nuclear_family'])],
+            'family_status' => ['required', Rule::in(['poor', 'lower_middle', 'middle_class', 'upper_middle class', 'rich_affluent'])],
+            'family_type' => ['required', Rule::in(['joint_family', 'nuclear_family', 'small_family'])],
             'about_me' => ['nullable', 'string'],
             'dosham' => ['nullable', 'string', 'max:50'],
             'star_nakshatram' => ['nullable', Rule::in($stars)],
@@ -385,6 +391,9 @@ class AdminController extends Controller
             'preferred_music' => ['nullable', 'string'],
             'preferred_sports' => ['nullable', 'string'],
             'preferred_food' => ['nullable', 'string'],
+            // New fields from migration
+            'about_my_family' => ['nullable', 'string', 'max:255'],
+            'fewlines_about_my_partner' => ['nullable', 'string', 'max:255'],
 
             // images
             'images.*' => ['nullable', 'image', 'max:2048'],
@@ -479,6 +488,9 @@ class AdminController extends Controller
         $profile->preferred_music = $validated['preferred_music'] ?? null;
         $profile->preferred_sports = $validated['preferred_sports'] ?? null;
         $profile->preferred_food = $validated['preferred_food'] ?? null;
+        // New fields from migration
+        $profile->about_my_family = $validated['about_my_family'] ?? null;
+        $profile->fewlines_about_my_partner = $validated['fewlines_about_my_partner'] ?? null;
         $profile->user()->associate($user);
         $profile->save();
 

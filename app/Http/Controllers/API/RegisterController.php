@@ -69,8 +69,8 @@ class RegisterController extends BaseController
                 'occupation' => 'nullable|string|max:255',
                 'annual_income' => 'nullable|string|max:255',
                 'physical_status' => 'required|in:normal,physically_challenged',
-                'family_status' => 'required|in:middle_class,upper_middle_class,rich_affluent',
-                'family_type' => 'required|in:joint_family,nuclear_family',
+                'family_status' => 'required|in:poor,lower_middle,middle_class,upper_middle_class,rich_affluent',
+                'family_type' => 'required|in:joint_family,nuclear_family,small_family',
                 'about_me' => 'nullable|string',
                 'dosham' => 'required|in:yes,no,donot_know',
                 'star_nakshatram' => 'nullable|string|max:255',
@@ -122,6 +122,9 @@ class RegisterController extends BaseController
                 'preferred_music' => 'nullable|string',
                 'preferred_sports' => 'nullable|string',
                 'preferred_food' => 'nullable|string',
+                // New fields from migration
+                'about_my_family' => 'nullable|string|max:255',
+                'fewlines_about_my_partner' => 'nullable|string|max:255'
             ]);
 
             if ($validator->fails()) {
@@ -204,7 +207,10 @@ class RegisterController extends BaseController
                 'preferred_hobbies_and_interests',
                 'preferred_music',
                 'preferred_sports',
-                'preferred_food'
+                'preferred_food',
+                // New fields from migration
+                'about_my_family' => 'nullable|string|max:255',
+                'fewlines_about_my_partner' => 'nullable|string|max:255'
             ]);
             $profileData['user_id'] = $user->id;
             Profile::create($profileData);
@@ -454,8 +460,8 @@ class RegisterController extends BaseController
                 'occupation' => 'nullable|string|max:255',
                 'annual_income' => 'nullable|string|max:255',
                 'physical_status' => 'nullable|in:normal,physically_challenged',
-                'family_status' => 'nullable|in:middle_class,upper_middle_class,rich_affluent',
-                'family_type' => 'nullable|in:joint_family,nuclear_family',
+                'family_status' => 'nullable|in:poor,lower_middle,middle_class,upper_middle_class,rich_affluent',
+                'family_type' => 'nullable|in:joint_family,nuclear_family,small_family',
                 'about_me' => 'nullable|string',
                 'dosham' => 'nullable|in:yes,no,donot_know',
                 'star_nakshatram' => 'nullable|string|max:255',
@@ -507,6 +513,9 @@ class RegisterController extends BaseController
                 'preferred_music' => 'nullable|string',
                 'preferred_sports' => 'nullable|string',
                 'preferred_food' => 'nullable|string',
+                // New fields from migration
+                'about_my_family' => 'nullable|string|max:255',
+                'fewlines_about_my_partner' => 'nullable|string|max:255',
             ]);
 
             if ($validator->fails()) {

@@ -147,6 +147,8 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Family Status</label>
                     <select name="family_status" class="w-full px-4 py-2 border rounded-md" required>
+                        <option value="poor" {{ old('family_status')==='poor' ? 'selected' : '' }}>Poor</option>
+                        <option value="lower_middle" {{ old('family_status')==='lower_middle' ? 'selected' : '' }}>Lower Middle Class</option>
                         <option value="middle_class" {{ old('family_status')==='middle_class' ? 'selected' : '' }}>Middle Class</option>
                         <option value="upper_middle class" {{ old('family_status')==='upper_middle class' ? 'selected' : '' }}>Upper Middle Class</option>
                         <option value="rich_affluent" {{ old('family_status')==='rich_affluent' ? 'selected' : '' }}>Rich/Affluent</option>
@@ -157,11 +159,20 @@
                     <select name="family_type" class="w-full px-4 py-2 border rounded-md" required>
                         <option value="joint_family" {{ old('family_type')==='joint_family' ? 'selected' : '' }}>Joint Family</option>
                         <option value="nuclear_family" {{ old('family_type')==='nuclear_family' ? 'selected' : '' }}>Nuclear Family</option>
+                        <option value="small_family" {{ old('family_type')==='small_family' ? 'selected' : '' }}>Small Family</option>
                     </select>
                 </div>
                 <div class="md:col-span-3">
                     <label class="block text-sm font-medium text-gray-700 mb-1">About Me</label>
                     <textarea name="about_me" class="w-full px-4 py-2 border rounded-md" rows="3">{{ old('about_me') }}</textarea>
+                </div>
+                <div class="md:col-span-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">About My Family</label>
+                    <textarea name="about_my_family" class="w-full px-4 py-2 border rounded-md" rows="3">{{ old('about_my_family') }}</textarea>
+                </div>
+                <div class="md:col-span-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Few Lines About My Partner</label>
+                    <textarea name="fewlines_about_my_partner" class="w-full px-4 py-2 border rounded-md" rows="3">{{ old('fewlines_about_my_partner') }}</textarea>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Dosham</label>

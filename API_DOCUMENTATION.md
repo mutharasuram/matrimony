@@ -66,6 +66,8 @@ All API responses follow a consistent format:
     "family_status": "middle_class",
     "family_type": "nuclear_family",
     "about_me": "I am a software engineer looking for a life partner",
+    "about_my_family": "We are a close-knit family",
+    "fewlines_about_my_partner": "Looking for someone caring and understanding",
     "dosham": "no",
     "star_nakshatram": "Rohini",
     "rasi": "Taurus",
@@ -569,6 +571,8 @@ All API responses follow a consistent format:
     "family_status": "middle_class",
     "family_type": "nuclear_family",
     "about_me": "I am a software engineer looking for a life partner",
+    "about_my_family": "We are a close-knit family",
+    "fewlines_about_my_partner": "Looking for someone caring and understanding",
     "dosham": "no",
     "star_nakshatram": "Rohini",
     "rasi": "Taurus",
@@ -827,6 +831,8 @@ profile_img[]: [file1.jpg, file2.jpg, file3.jpg]
             "family_status": "middle_class",
             "family_type": "nuclear_family",
             "about_me": "I am a software engineer looking for a life partner",
+            "about_my_family": "We are a close-knit family",
+            "fewlines_about_my_partner": "Looking for someone caring and understanding",
             "dosham": "no",
             "star_nakshatram": "Rohini",
             "rasi": "Taurus",
@@ -1633,6 +1639,26 @@ curl -X POST http://your-domain.com/api/updateProfile \
     "hobbies_and_interests":"Music, Sports, Food, Reading, Travel",
     "music":"Classical, Rock, Pop",
     "sports":"Cricket, Football, Badminton",
-    "food":"Indian, Chinese, Italian"
+    "food":"Indian, Chinese, Italian",
+    "about_my_family":"We are a close-knit family",
+    "fewlines_about_my_partner":"Looking for someone caring and understanding"
   }'
 ```
+
+---
+
+## 6. Enum Values Reference
+
+### 6.1 Family Status
+Available values for `family_status`:
+- `poor` - Poor
+- `lower_middle` - Lower Middle Class
+- `middle_class` - Middle Class
+- `upper_middle_class` - Upper Middle Class
+- `rich_affluent` - Rich/Affluent
+
+### 6.2 Family Type
+Available values for `family_type`:
+- `joint_family` - Joint Family
+- `nuclear_family` - Nuclear Family
+- `small_family` - Small Family

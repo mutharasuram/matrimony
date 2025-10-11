@@ -72,7 +72,10 @@ class Profile extends Model
         'hobbies_and_interests',
         'music',
         'sports',
-        'food'
+        'food',
+        // New fields from migration
+        'about_my_family',
+        'fewlines_about_my_partner'
     ];
 
     public function user()

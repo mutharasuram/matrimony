@@ -153,7 +153,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Family Status</label>
                     <select name="family_status" class="w-full px-4 py-2 border rounded-md" required>
-                        @foreach(['middle_class','upper_middle class','rich_affluent'] as $opt)
+                        @foreach(['poor','lower_middle','middle_class','upper_middle class','rich_affluent'] as $opt)
                             <option value="{{ $opt }}" {{ old('family_status', $p->family_status ?? '')===$opt ? 'selected' : '' }}>{{ ucwords($opt) }}</option>
                         @endforeach
                     </select>
@@ -161,7 +161,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Family Type</label>
                     <select name="family_type" class="w-full px-4 py-2 border rounded-md" required>
-                        @foreach(['joint_family','nuclear_family'] as $opt)
+                        @foreach(['joint_family','nuclear_family','small_family'] as $opt)
                             <option value="{{ $opt }}" {{ old('family_type', $p->family_type ?? '')===$opt ? 'selected' : '' }}>{{ ucwords(str_replace('_',' ', $opt)) }}</option>
                         @endforeach
                     </select>
@@ -169,6 +169,14 @@
                 <div class="md:col-span-3">
                     <label class="block text-sm font-medium text-gray-700 mb-1">About Me</label>
                     <textarea name="about_me" class="w-full px-4 py-2 border rounded-md" rows="3">{{ old('about_me', $p->about_me ?? '') }}</textarea>
+                </div>
+                <div class="md:col-span-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">About My Family</label>
+                    <textarea name="about_my_family" class="w-full px-4 py-2 border rounded-md" rows="3">{{ old('about_my_family', $p->about_my_family ?? '') }}</textarea>
+                </div>
+                <div class="md:col-span-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Few Lines About My Partner</label>
+                    <textarea name="fewlines_about_my_partner" class="w-full px-4 py-2 border rounded-md" rows="3">{{ old('fewlines_about_my_partner', $p->fewlines_about_my_partner ?? '') }}</textarea>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Dosham</label>
