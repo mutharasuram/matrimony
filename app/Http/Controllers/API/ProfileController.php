@@ -288,56 +288,185 @@ class ProfileController extends BaseController
                 return $this->sendError('User not found.', [], 404);
             }
 
-            // Format the response
+            // Define all profile fields for completion tracking
+            $allProfileFields = [
+                // Basic Information
+                'profile_created_by', 'gender', 'name', 'dob', 'mother_tongue',
+                'subcaste', 'sub_caste_details', 'willing_to_marry_from_subcaste',
+                'marital_status', 'height', 'physical_status',
+                // Location
+                'country_living_in', 'residing_state', 'residing_city', 'citizenship',
+                'country_of_birth', 'state_of_birth', 'city_of_birth',
+                // Education & Career
+                'education', 'education_category', 'employed_in', 'occupation',
+                'annual_income', 'income',
+                // Family
+                'family_status', 'family_type', 'father_occupation', 'mother_occupation',
+                'no_of_brothers', 'no_of_sisters',
+                // About
+                'about_me', 'about_my_family', 'fewlines_about_my_partner',
+                // Astrology
+                'dosham', 'star_nakshatram', 'rasi', 'gothram', 'time_of_birth',
+                'horoscope_chart_style',
+                // Habits
+                'eating_habit', 'drinking_habit', 'smoking_habit', 'habit',
+                'hobbies_and_interests', 'music', 'sports', 'food',
+                // Partner Preferences - Age & Physical
+                'preferred_age_min', 'preferred_age_max', 'preferred_height_min',
+                'preferred_height_max', 'preferred_marital_status', 'preferred_physical_status',
+                // Partner Preferences - Background
+                'preferred_mother_tongue', 'preferred_subcaste', 'preferred_chevvai_dosham',
+                'preferred_citizenship',
+                // Partner Preferences - Education & Career
+                'preferred_education', 'preferred_employed_in', 'preferred_occupation',
+                'preferred_annual_income_min', 'preferred_annual_income_max',
+                'preferred_country',
+                // Partner Preferences - Habits
+                'preferred_eating_habit', 'preferred_drinking_habit', 'preferred_smoking_habit',
+                'preferred_hobbies_and_interests', 'preferred_music', 'preferred_sports',
+                'preferred_food',
+                // Other
+                'isEligible'
+            ];
+
+            // Format the response with ALL user fields
             $userData = [
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
                 'mobile' => $user->mobile,
                 'm_id' => $user->m_id,
+                'is_admin' => $user->is_admin ?? false,
                 'created_at' => $user->created_at,
                 'updated_at' => $user->updated_at,
                 'profile' => null,
-                'images' => []
+                'images' => [],
+                'profile_completion' => [
+                    'filled_fields' => 0,
+                    'total_fields' => count($allProfileFields),
+                    'percentage' => 0,
+                    'missing_fields' => []
+                ]
             ];
 
             // Add profile data if exists
             if ($user->profile) {
+                $profile = $user->profile;
+                
+                // Calculate profile completion
+                $filledFields = 0;
+                $missingFields = [];
+                
+                foreach ($allProfileFields as $field) {
+                    $value = $profile->$field;
+                    if ($value !== null && $value !== '' && $value !== '0') {
+                        $filledFields++;
+                    } else {
+                        $missingFields[] = $field;
+                    }
+                }
+                
+                $percentage = count($allProfileFields) > 0 
+                    ? round(($filledFields / count($allProfileFields)) * 100, 2) 
+                    : 0;
+
                 $userData['profile'] = [
-                    'id' => $user->profile->id,
-                    'profile_created_by' => $user->profile->profile_created_by,
-                    'gender' => $user->profile->gender,
-                    'name' => $user->profile->name,
-                    'dob' => $user->profile->dob,
-                    'mother_tongue' => $user->profile->mother_tongue,
-                    'subcaste' => $user->profile->subcaste,
-                    'sub_caste_details' => $user->profile->sub_caste_details,
-                    'willing_to_marry_from_subcaste' => $user->profile->willing_to_marry_from_subcaste,
-                    'marital_status' => $user->profile->marital_status,
-                    'country_living_in' => $user->profile->country_living_in,
-                    'residing_state' => $user->profile->residing_state,
-                    'residing_city' => $user->profile->residing_city,
-                    'citizenship' => $user->profile->citizenship,
-                    'height' => $user->profile->height,
-                    'education' => $user->profile->education,
-                    'employed_in' => $user->profile->employed_in,
-                    'occupation' => $user->profile->occupation,
-                    'annual_income' => $user->profile->annual_income,
-                    'physical_status' => $user->profile->physical_status,
-                    'family_status' => $user->profile->family_status,
-                    'family_type' => $user->profile->family_type,
-                    'about_me' => $user->profile->about_me,
-                    'dosham' => $user->profile->dosham,
-                    'star_nakshatram' => $user->profile->star_nakshatram,
-                    'rasi' => $user->profile->rasi,
-                    'gothram' => $user->profile->gothram,
-                    'time_of_birth' => $user->profile->time_of_birth,
-                    'country_of_birth' => $user->profile->country_of_birth,
-                    'state_of_birth' => $user->profile->state_of_birth,
-                    'city_of_birth' => $user->profile->city_of_birth,
-                    'horoscope_chart_style' => $user->profile->horoscope_chart_style,
-                    'created_at' => $user->profile->created_at,
-                    'updated_at' => $user->profile->updated_at,
+                    // Basic Information
+                    'id' => $profile->id,
+                    'user_id' => $profile->user_id,
+                    'profile_created_by' => $profile->profile_created_by,
+                    'gender' => $profile->gender,
+                    'name' => $profile->name,
+                    'dob' => $profile->dob,
+                    'mother_tongue' => $profile->mother_tongue,
+                    'subcaste' => $profile->subcaste,
+                    'sub_caste_details' => $profile->sub_caste_details,
+                    'willing_to_marry_from_subcaste' => $profile->willing_to_marry_from_subcaste,
+                    'marital_status' => $profile->marital_status,
+                    'height' => $profile->height,
+                    'physical_status' => $profile->physical_status,
+                    // Location
+                    'country_living_in' => $profile->country_living_in,
+                    'residing_state' => $profile->residing_state,
+                    'residing_city' => $profile->residing_city,
+                    'citizenship' => $profile->citizenship,
+                    'country_of_birth' => $profile->country_of_birth,
+                    'state_of_birth' => $profile->state_of_birth,
+                    'city_of_birth' => $profile->city_of_birth,
+                    // Education & Career
+                    'education' => $profile->education,
+                    'education_category' => $profile->education_category,
+                    'employed_in' => $profile->employed_in,
+                    'occupation' => $profile->occupation,
+                    'annual_income' => $profile->annual_income,
+                    'income' => $profile->income,
+                    // Family
+                    'family_status' => $profile->family_status,
+                    'family_type' => $profile->family_type,
+                    'father_occupation' => $profile->father_occupation,
+                    'mother_occupation' => $profile->mother_occupation,
+                    'no_of_brothers' => $profile->no_of_brothers,
+                    'no_of_sisters' => $profile->no_of_sisters,
+                    // About
+                    'about_me' => $profile->about_me,
+                    'about_my_family' => $profile->about_my_family,
+                    'fewlines_about_my_partner' => $profile->fewlines_about_my_partner,
+                    // Astrology
+                    'dosham' => $profile->dosham,
+                    'star_nakshatram' => $profile->star_nakshatram,
+                    'rasi' => $profile->rasi,
+                    'gothram' => $profile->gothram,
+                    'time_of_birth' => $profile->time_of_birth,
+                    'horoscope_chart_style' => $profile->horoscope_chart_style,
+                    // Habits
+                    'eating_habit' => $profile->eating_habit,
+                    'drinking_habit' => $profile->drinking_habit,
+                    'smoking_habit' => $profile->smoking_habit,
+                    'habit' => $profile->habit,
+                    'hobbies_and_interests' => $profile->hobbies_and_interests,
+                    'music' => $profile->music,
+                    'sports' => $profile->sports,
+                    'food' => $profile->food,
+                    // Partner Preferences - Age & Physical
+                    'preferred_age_min' => $profile->preferred_age_min,
+                    'preferred_age_max' => $profile->preferred_age_max,
+                    'preferred_height_min' => $profile->preferred_height_min,
+                    'preferred_height_max' => $profile->preferred_height_max,
+                    'preferred_marital_status' => $profile->preferred_marital_status,
+                    'preferred_physical_status' => $profile->preferred_physical_status,
+                    // Partner Preferences - Background
+                    'preferred_mother_tongue' => $profile->preferred_mother_tongue,
+                    'preferred_subcaste' => $profile->preferred_subcaste,
+                    'preferred_chevvai_dosham' => $profile->preferred_chevvai_dosham,
+                    'preferred_citizenship' => $profile->preferred_citizenship,
+                    // Partner Preferences - Education & Career
+                    'preferred_education' => $profile->preferred_education,
+                    'preferred_employed_in' => $profile->preferred_employed_in,
+                    'preferred_occupation' => $profile->preferred_occupation,
+                    'preferred_annual_income_min' => $profile->preferred_annual_income_min,
+                    'preferred_annual_income_max' => $profile->preferred_annual_income_max,
+                    'preferred_country' => $profile->preferred_country,
+                    // Partner Preferences - Habits
+                    'preferred_eating_habit' => $profile->preferred_eating_habit,
+                    'preferred_drinking_habit' => $profile->preferred_drinking_habit,
+                    'preferred_smoking_habit' => $profile->preferred_smoking_habit,
+                    'preferred_hobbies_and_interests' => $profile->preferred_hobbies_and_interests,
+                    'preferred_music' => $profile->preferred_music,
+                    'preferred_sports' => $profile->preferred_sports,
+                    'preferred_food' => $profile->preferred_food,
+                    // Other
+                    'isEligible' => $profile->isEligible,
+                    // Timestamps
+                    'created_at' => $profile->created_at,
+                    'updated_at' => $profile->updated_at,
+                ];
+
+                // Update profile completion data
+                $userData['profile_completion'] = [
+                    'filled_fields' => $filledFields,
+                    'total_fields' => count($allProfileFields),
+                    'percentage' => $percentage,
+                    'missing_fields' => $missingFields
                 ];
 
                 // Add images if they exist
@@ -352,6 +481,14 @@ class ProfileController extends BaseController
                         ];
                     })->toArray();
                 }
+            } else {
+                // If no profile exists, all fields are missing
+                $userData['profile_completion'] = [
+                    'filled_fields' => 0,
+                    'total_fields' => count($allProfileFields),
+                    'percentage' => 0,
+                    'missing_fields' => $allProfileFields
+                ];
             }
 
             return $this->sendResponse($userData, 'User details retrieved successfully!');

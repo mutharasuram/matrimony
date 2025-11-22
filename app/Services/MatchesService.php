@@ -20,7 +20,35 @@ class MatchesService
         //
     }
 
-    public function getJustJoined($id, $perPage = 15, $page = 1)
+    /**
+     * Apply search filters to a query builder
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param array $searchParams
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    private function applySearchFilters($query, $searchParams)
+    {
+        if (empty($searchParams) || empty($searchParams['search'])) {
+            return $query;
+        }
+
+        $searchTerm = $searchParams['search'];
+        
+        $query->where(function ($q) use ($searchTerm) {
+            $q->where('name', 'like', "%{$searchTerm}%")
+                ->orWhere('email', 'like', "%{$searchTerm}%")
+                ->orWhere('mobile', 'like', "%{$searchTerm}%")
+                ->orWhere('m_id', 'like', "%{$searchTerm}%")
+                ->orWhereHas('profile', function ($profileQuery) use ($searchTerm) {
+                    $profileQuery->where('name', 'like', "%{$searchTerm}%");
+                });
+        });
+
+        return $query;
+    }
+
+    public function getJustJoined($id, $perPage = 15, $page = 1, $searchParams = [])
     {
         $userData = User::with('profile')->where('id', $id)->first();
         
@@ -41,12 +69,16 @@ class MatchesService
         $gender = $userData->profile->gender ?? 'male';
         $oppositeGender = $gender == 'male' ? 'female' : 'male';
         
-        $users = User::with('profile', 'profile.images')
+        $query = User::with('profile', 'profile.images')
             ->where('id', '!=', $id) // Exclude current user
             ->whereHas('profile', function ($query) use ($oppositeGender) {
                 $query->where('gender', $oppositeGender);
-            })
-            ->orderBy('created_at', 'desc')
+            });
+
+        // Apply search filters
+        $query = $this->applySearchFilters($query, $searchParams);
+        
+        $users = $query->orderBy('created_at', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
 
         return [
@@ -61,7 +93,7 @@ class MatchesService
             ]
         ];
     }
-    public function getMatches($id, $perPage = 15, $page = 1)
+    public function getMatches($id, $perPage = 15, $page = 1, $searchParams = [])
     {
         $userData = User::with('profile')->where('id', $id)->first();
         if (!$userData || !$userData->profile) {
@@ -85,7 +117,7 @@ class MatchesService
         $willingToMarryFromSubcaste = $userData->profile->willing_to_marry_from_subcaste;
         $oppositeGender = $userGender === 'male' ? 'female' : 'male';
         
-        $users = User::with('profile', 'profile.images')
+        $query = User::with('profile', 'profile.images')
             ->where('id', '!=', $id) // Exclude current user
             ->whereHas('profile', function ($query) use ($oppositeGender, $userDob, $userHeight, $userSubcaste, $willingToMarryFromSubcaste) {
                 $query->where('gender', $oppositeGender);
@@ -108,8 +140,12 @@ class MatchesService
                 //         $query->where('dob', '>=', $userDob); // Male should be older or same age
                 //     }
                 // }
-            })
-            ->orderBy('created_at', 'desc')
+            });
+
+        // Apply search filters
+        $query = $this->applySearchFilters($query, $searchParams);
+        
+        $users = $query->orderBy('created_at', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
             
         return [
@@ -124,7 +160,7 @@ class MatchesService
             ]
         ];
     }
-    public function getNearBy($id, $perPage = 15, $page = 1)
+    public function getNearBy($id, $perPage = 15, $page = 1, $searchParams = [])
     {
         $userData = User::with('profile')->where('id', $id)->first();
         
@@ -155,7 +191,7 @@ class MatchesService
         $willingToMarryFromSubcaste = $userData->profile->willing_to_marry_from_subcaste;
         $oppositeGender = $userGender === 'male' ? 'female' : 'male';
 
-        $users = User::with('profile', 'profile.images')
+        $query = User::with('profile', 'profile.images')
             ->where('id', '!=', $id) // Exclude current user
             ->whereHas('profile', function ($query) use (
                 $oppositeGender,
@@ -211,8 +247,12 @@ class MatchesService
                 //         $query->where('dob', '>=', $userDob); // Male should be older or same age
                 //     }
                 // }
-            })
-            ->orderBy('created_at', 'desc')
+            });
+
+        // Apply search filters
+        $query = $this->applySearchFilters($query, $searchParams);
+        
+        $users = $query->orderBy('created_at', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
 
         return [
@@ -227,11 +267,19 @@ class MatchesService
             ]
         ];
     }
-    public function getShortlisted($id, $perPage = 15, $page = 1)
+    public function getShortlisted($id, $perPage = 15, $page = 1, $searchParams = [])
     {
-        $shortlisted = Shortlist::where('user_id', $id)
-            ->with(['shortlistedUser.profile', 'shortlistedUser.profile.images'])
-            ->paginate($perPage, ['*'], 'page', $page);
+        $query = Shortlist::where('user_id', $id)
+            ->with(['shortlistedUser.profile', 'shortlistedUser.profile.images']);
+
+        // Apply search filters on the related user
+        if (!empty($searchParams) && !empty($searchParams['search'])) {
+            $query->whereHas('shortlistedUser', function ($userQuery) use ($searchParams) {
+                $this->applySearchFilters($userQuery, $searchParams);
+            });
+        }
+
+        $shortlisted = $query->paginate($perPage, ['*'], 'page', $page);
             
         $data = $shortlisted->map(function ($item) {
             return $item->shortlistedUser;
@@ -250,11 +298,19 @@ class MatchesService
         ];
     }
     
-    public function getShortlistedBy($id, $perPage = 15, $page = 1)
+    public function getShortlistedBy($id, $perPage = 15, $page = 1, $searchParams = [])
     {
-        $shortlisted = Shortlist::where('shorted_id', $id)
-            ->with(['user.profile', 'user.profile.images'])
-            ->paginate($perPage, ['*'], 'page', $page);
+        $query = Shortlist::where('shorted_id', $id)
+            ->with(['user.profile', 'user.profile.images']);
+
+        // Apply search filters on the related user
+        if (!empty($searchParams) && !empty($searchParams['search'])) {
+            $query->whereHas('user', function ($userQuery) use ($searchParams) {
+                $this->applySearchFilters($userQuery, $searchParams);
+            });
+        }
+
+        $shortlisted = $query->paginate($perPage, ['*'], 'page', $page);
             
         $data = $shortlisted->map(function ($item) {
             return $item->user;
@@ -273,11 +329,19 @@ class MatchesService
         ];
     }
     
-    public function getInterested($id, $perPage = 15, $page = 1)
+    public function getInterested($id, $perPage = 15, $page = 1, $searchParams = [])
     {
-        $interested = Interest::where('sender_id', $id)
-            ->with(['receiver.profile', 'receiver.profile.images'])
-            ->paginate($perPage, ['*'], 'page', $page);
+        $query = Interest::where('sender_id', $id)
+            ->with(['receiver.profile', 'receiver.profile.images']);
+
+        // Apply search filters on the related receiver user
+        if (!empty($searchParams) && !empty($searchParams['search'])) {
+            $query->whereHas('receiver', function ($userQuery) use ($searchParams) {
+                $this->applySearchFilters($userQuery, $searchParams);
+            });
+        }
+
+        $interested = $query->paginate($perPage, ['*'], 'page', $page);
             
         $data = $interested->map(function ($item) {
             return $item->receiver;
@@ -296,11 +360,19 @@ class MatchesService
         ];
     }
     
-    public function getInterestedBy($id, $perPage = 15, $page = 1)
+    public function getInterestedBy($id, $perPage = 15, $page = 1, $searchParams = [])
     {
-        $interested = Interest::where('receiver_id', $id)
-            ->with(['sender.profile', 'sender.profile.images'])
-            ->paginate($perPage, ['*'], 'page', $page);
+        $query = Interest::where('receiver_id', $id)
+            ->with(['sender.profile', 'sender.profile.images']);
+
+        // Apply search filters on the related sender user
+        if (!empty($searchParams) && !empty($searchParams['search'])) {
+            $query->whereHas('sender', function ($userQuery) use ($searchParams) {
+                $this->applySearchFilters($userQuery, $searchParams);
+            });
+        }
+
+        $interested = $query->paginate($perPage, ['*'], 'page', $page);
             
         $data = $interested->map(function ($item) {
             return $item->sender;
@@ -316,6 +388,47 @@ class MatchesService
                 'from' => $interested->firstItem(),
                 'to' => $interested->lastItem()
             ]
+        ];
+    }
+
+    /**
+     * Get random home profiles (10 profiles of opposite gender)
+     *
+     * @param int $id
+     * @param array $searchParams
+     * @return array
+     */
+    public function getHomeProfiles($id, $searchParams = [])
+    {
+        $userData = User::with('profile')->where('id', $id)->first();
+        
+        if (!$userData || !$userData->profile) {
+            return [
+                'data' => [],
+                'total' => 0
+            ];
+        }
+
+        $gender = $userData->profile->gender ?? 'male';
+        $oppositeGender = $gender == 'male' ? 'female' : 'male';
+        
+        $query = User::with('profile', 'profile.images')
+            ->where('id', '!=', $id) // Exclude current user
+            ->whereHas('profile', function ($query) use ($oppositeGender) {
+                $query->where('gender', $oppositeGender);
+            });
+
+        // Apply search filters
+        $query = $this->applySearchFilters($query, $searchParams);
+        
+        // Get random 10 profiles
+        $users = $query->inRandomOrder()
+            ->limit(10)
+            ->get();
+
+        return [
+            'data' => $users->values()->all(),
+            'total' => $users->count()
         ];
     }
 }

@@ -783,7 +783,7 @@ profile_img[]: [file1.jpg, file2.jpg, file3.jpg]
 ### 2.5 Get User Details
 **Endpoint:** `POST /user-details`
 
-**Description:** Get complete user profile with images
+**Description:** Get complete user profile with all fields, images, and profile completion tracking
 
 **Request Body:**
 ```json
@@ -805,10 +805,12 @@ profile_img[]: [file1.jpg, file2.jpg, file3.jpg]
         "email": "john@example.com",
         "mobile": "9876543210",
         "m_id": "M123456",
+        "is_admin": false,
         "created_at": "2024-01-01T00:00:00.000000Z",
         "updated_at": "2024-01-01T00:00:00.000000Z",
         "profile": {
             "id": 1,
+            "user_id": 1,
             "profile_created_by": "self",
             "gender": "male",
             "name": "John Doe",
@@ -818,18 +820,27 @@ profile_img[]: [file1.jpg, file2.jpg, file3.jpg]
             "sub_caste_details": "Iyer",
             "willing_to_marry_from_subcaste": "yes",
             "marital_status": "Unmarried",
+            "height": "5'8\"",
+            "physical_status": "normal",
             "country_living_in": "India",
             "residing_state": "Tamil Nadu",
             "residing_city": "Chennai",
             "citizenship": "Indian",
-            "height": "5'8\"",
+            "country_of_birth": "India",
+            "state_of_birth": "Tamil Nadu",
+            "city_of_birth": "Chennai",
             "education": "Bachelor's Degree",
+            "education_category": "Engineering",
             "employed_in": "Private",
             "occupation": "Software Engineer",
             "annual_income": "500000",
-            "physical_status": "normal",
+            "income": "500000",
             "family_status": "middle_class",
             "family_type": "nuclear_family",
+            "father_occupation": "Engineer",
+            "mother_occupation": "Teacher",
+            "no_of_brothers": 1,
+            "no_of_sisters": 0,
             "about_me": "I am a software engineer looking for a life partner",
             "about_my_family": "We are a close-knit family",
             "fewlines_about_my_partner": "Looking for someone caring and understanding",
@@ -837,15 +848,16 @@ profile_img[]: [file1.jpg, file2.jpg, file3.jpg]
             "star_nakshatram": "Rohini",
             "rasi": "Taurus",
             "gothram": "Bharadwaja",
-            "time_of_birth": "10:30",
-            "country_of_birth": "India",
-            "state_of_birth": "Tamil Nadu",
-            "city_of_birth": "Chennai",
+            "time_of_birth": "10:30:00",
             "horoscope_chart_style": "North Indian",
-            "father_occupation": "Engineer",
-            "mother_occupation": "Teacher",
-            "no_of_brothers": 1,
-            "no_of_sisters": 0,
+            "eating_habit": "Vegetarian",
+            "drinking_habit": "Non-drinker",
+            "smoking_habit": "Non-smoker",
+            "habit": "Non-smoker",
+            "hobbies_and_interests": "Music, Sports, Food, Reading, Travel",
+            "music": "Classical, Rock, Pop",
+            "sports": "Cricket, Football, Badminton",
+            "food": "Indian, Chinese, Italian",
             "preferred_age_min": "25",
             "preferred_age_max": "35",
             "preferred_height_min": "5'4\"",
@@ -855,12 +867,21 @@ profile_img[]: [file1.jpg, file2.jpg, file3.jpg]
             "preferred_mother_tongue": "English",
             "preferred_subcaste": "Brahmin",
             "preferred_chevvai_dosham": "no",
+            "preferred_citizenship": "Indian",
             "preferred_education": "Bachelor's Degree",
             "preferred_employed_in": "Private",
             "preferred_occupation": "Software Engineer",
             "preferred_annual_income_min": "300000",
             "preferred_annual_income_max": "800000",
             "preferred_country": "India",
+            "preferred_eating_habit": "Vegetarian",
+            "preferred_drinking_habit": "Non-drinker",
+            "preferred_smoking_habit": "Non-smoker",
+            "preferred_hobbies_and_interests": "Music, Sports, Reading, Travel",
+            "preferred_music": "Classical, Rock, Pop",
+            "preferred_sports": "Cricket, Football, Badminton",
+            "preferred_food": "Indian, Chinese, Italian",
+            "isEligible": true,
             "created_at": "2024-01-01T00:00:00.000000Z",
             "updated_at": "2024-01-01T00:00:00.000000Z"
         },
@@ -872,7 +893,69 @@ profile_img[]: [file1.jpg, file2.jpg, file3.jpg]
                 "created_at": "2024-01-01T00:00:00.000000Z",
                 "updated_at": "2024-01-01T00:00:00.000000Z"
             }
-        ]
+        ],
+        "profile_completion": {
+            "filled_fields": 65,
+            "total_fields": 70,
+            "percentage": 92.86,
+            "missing_fields": [
+                "education_category",
+                "preferred_citizenship",
+                "preferred_eating_habit",
+                "preferred_drinking_habit",
+                "preferred_smoking_habit"
+            ]
+        }
+    },
+    "message": "User details retrieved successfully!"
+}
+```
+
+**Profile Completion Tracking:**
+The response includes a `profile_completion` object that provides:
+- `filled_fields`: Number of profile fields that have been filled (not null, not empty, not '0')
+- `total_fields`: Total number of profile fields being tracked (70 fields)
+- `percentage`: Completion percentage rounded to 2 decimal places
+- `missing_fields`: Array of field names that are still empty or need to be updated
+
+**All Profile Fields Tracked:**
+The completion calculation tracks all 70 profile fields including:
+- Basic Information (name, gender, dob, etc.)
+- Location fields (country, state, city - living and birth)
+- Education & Career fields
+- Family details
+- About sections
+- Astrology fields
+- Personal habits
+- All partner preference fields
+
+**Response (No Profile):**
+```json
+{
+    "success": true,
+    "data": {
+        "id": 1,
+        "name": "John Doe",
+        "email": "john@example.com",
+        "mobile": "9876543210",
+        "m_id": "M123456",
+        "is_admin": false,
+        "created_at": "2024-01-01T00:00:00.000000Z",
+        "updated_at": "2024-01-01T00:00:00.000000Z",
+        "profile": null,
+        "images": [],
+        "profile_completion": {
+            "filled_fields": 0,
+            "total_fields": 70,
+            "percentage": 0,
+            "missing_fields": [
+                "profile_created_by",
+                "gender",
+                "name",
+                "dob",
+                "... (all 70 fields)"
+            ]
+        }
     },
     "message": "User details retrieved successfully!"
 }
@@ -921,7 +1004,7 @@ profile_img[]: [file1.jpg, file2.jpg, file3.jpg]
 ### 3.1 Get Matches
 **Endpoint:** `GET /matches`
 
-**Description:** Get different types of matches based on criteria
+**Description:** Get different types of matches based on criteria with optional search functionality
 
 **Query Parameters:**
 - `type` (required): Type of matches to retrieve
@@ -935,16 +1018,39 @@ profile_img[]: [file1.jpg, file2.jpg, file3.jpg]
 - `id` (required): User ID
 - `per_page` (optional): Number of results per page (default: 15, max: 100)
 - `page` (optional): Page number (default: 1)
+- `search` (optional): Search term that searches across name, email, mobile number, and m_id
 
 **Validation Rules:**
 - `type`: required|string|in:just_joined,matches,nearby,shortlisted,shortlisted_by,interested,interested_by
 - `id`: required|integer|min:1
 - `per_page`: optional (limited between 1-100)
 - `page`: optional (minimum 1)
+- `search`: optional|string|max:255
 
-**Example Request:**
+**Search Functionality:**
+- The `search` parameter performs a search across multiple fields:
+  - User name
+  - Profile name
+  - Email address
+  - Mobile number
+  - Matrimony ID (m_id)
+- Search is case-insensitive and uses partial matching (LIKE query)
+- Search works across all match types
+- If a user matches any of the searchable fields, they will be included in results
+
+**Example Requests:**
 ```
+# Get matches without search
 GET /matches?type=matches&id=1&per_page=10&page=1
+
+# Get matches with search (searches name, email, mobile, m_id)
+GET /matches?type=matches&id=1&search=john
+
+# Get shortlisted users with search
+GET /matches?type=shortlisted&id=1&search=98765
+
+# Get interested users with search
+GET /matches?type=interested&id=1&search=mv123
 ```
 
 **Response:**
@@ -952,26 +1058,174 @@ GET /matches?type=matches&id=1&per_page=10&page=1
 {
     "success": true,
     "data": {
-        "current_page": 1,
         "data": [
             {
                 "id": 2,
                 "name": "Jane Doe",
-                "age": 28,
-                "height": "5'6\"",
-                "education": "Master's Degree",
-                "occupation": "Doctor",
-                "location": "Chennai, Tamil Nadu",
+                "email": "jane@example.com",
+                "mobile": "9876543210",
+                "m_id": "mv1234567890",
+                "profile": {
+                    "id": 2,
+                    "name": "Jane Doe",
+                    "gender": "female",
+                    "height": "5'6\"",
+                    "education": "Master's Degree",
+                    "occupation": "Doctor"
+                },
                 "images": [
-                    "http://your-domain.com/storage/app/public/profile_images/jane1.jpg"
+                    {
+                        "id": 1,
+                        "img_path": "profile_images/jane1.jpg",
+                        "full_url": "http://your-domain.com/storage/app/public/profile_images/jane1.jpg"
+                    }
                 ]
             }
         ],
-        "total": 50,
-        "per_page": 10,
-        "last_page": 5
+        "pagination": {
+            "current_page": 1,
+            "per_page": 10,
+            "total": 50,
+            "last_page": 5,
+            "from": 1,
+            "to": 10
+        }
     },
     "message": "Matches retrieved successfully"
+}
+```
+
+**Response (With Search - No Results):**
+```json
+{
+    "success": true,
+    "data": {
+        "data": [],
+        "pagination": {
+            "current_page": 1,
+            "per_page": 10,
+            "total": 0,
+            "last_page": 0,
+            "from": null,
+            "to": null
+        }
+    },
+    "message": "Matches retrieved successfully"
+}
+```
+
+---
+
+### 3.2 Get Home Profiles
+**Endpoint:** `GET /home`
+
+**Description:** Get random 10 profiles of opposite gender for home page display with optional search functionality
+
+**Query Parameters:**
+- `id` (required): User ID
+- `search` (optional): Search term that searches across name, email, mobile number, and m_id
+
+**Validation Rules:**
+- `id`: required|integer|min:1
+- `search`: optional|string|max:255
+
+**Functionality:**
+- Returns exactly 10 random profiles (or fewer if less than 10 available)
+- Shows profiles of opposite gender:
+  - If user is male, shows female profiles
+  - If user is female, shows male profiles
+- Profiles are randomly ordered each time
+- Excludes the current user from results
+- Includes search functionality that filters results before random selection
+- Search works across multiple fields:
+  - User name
+  - Profile name
+  - Email address
+  - Mobile number
+  - Matrimony ID (m_id)
+
+**Example Requests:**
+```
+# Get home profiles without search
+GET /home?id=1
+
+# Get home profiles with search
+GET /home?id=1&search=john
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "data": {
+        "data": [
+            {
+                "id": 2,
+                "name": "Jane Doe",
+                "email": "jane@example.com",
+                "mobile": "9876543210",
+                "m_id": "mv1234567890",
+                "profile": {
+                    "id": 2,
+                    "name": "Jane Doe",
+                    "gender": "female",
+                    "height": "5'6\"",
+                    "education": "Master's Degree",
+                    "occupation": "Doctor"
+                },
+                "images": [
+                    {
+                        "id": 1,
+                        "img_path": "profile_images/jane1.jpg",
+                        "full_url": "http://your-domain.com/storage/app/public/profile_images/jane1.jpg"
+                    }
+                ]
+            }
+        ],
+        "total": 10
+    },
+    "message": "Home profiles retrieved successfully"
+}
+```
+
+**Response (With Search - Fewer Results):**
+```json
+{
+    "success": true,
+    "data": {
+        "data": [
+            {
+                "id": 5,
+                "name": "John Smith",
+                "email": "john@example.com",
+                "mobile": "9876543210",
+                "m_id": "mv9876543210",
+                "profile": {
+                    "id": 5,
+                    "name": "John Smith",
+                    "gender": "male",
+                    "height": "5'8\"",
+                    "education": "Bachelor's Degree",
+                    "occupation": "Engineer"
+                },
+                "images": []
+            }
+        ],
+        "total": 1
+    },
+    "message": "Home profiles retrieved successfully"
+}
+```
+
+**Response (No Profile Found):**
+```json
+{
+    "success": true,
+    "data": {
+        "data": [],
+        "total": 0
+    },
+    "message": "Home profiles retrieved successfully"
 }
 ```
 
@@ -1589,6 +1843,21 @@ curl -X POST http://your-domain.com/api/login \
 
 # Get matches
 curl -X GET "http://your-domain.com/api/matches?type=matches&id=1&per_page=10&page=1"
+
+# Get matches with search (searches name, email, mobile, m_id)
+curl -X GET "http://your-domain.com/api/matches?type=matches&id=1&search=john"
+
+# Get shortlisted users with search
+curl -X GET "http://your-domain.com/api/matches?type=shortlisted&id=1&search=98765"
+
+# Get interested users with search
+curl -X GET "http://your-domain.com/api/matches?type=interested&id=1&search=mv123"
+
+# Get home profiles (random 10 profiles of opposite gender)
+curl -X GET "http://your-domain.com/api/home?id=1"
+
+# Get home profiles with search
+curl -X GET "http://your-domain.com/api/home?id=1&search=john"
 
 # Upload profile image
 curl -X POST http://your-domain.com/api/image_upload \
