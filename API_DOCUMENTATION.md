@@ -1179,7 +1179,19 @@ GET /home?id=1&search=john
                         "img_path": "profile_images/jane1.jpg",
                         "full_url": "http://your-domain.com/storage/app/public/profile_images/jane1.jpg"
                     }
-                ]
+                ],
+                "profile_completion": {
+                    "filled_fields": 65,
+                    "total_fields": 70,
+                    "percentage": 92.86,
+                    "missing_fields": [
+                        "education_category",
+                        "preferred_citizenship",
+                        "preferred_eating_habit",
+                        "preferred_drinking_habit",
+                        "preferred_smoking_habit"
+                    ]
+                }
             }
         ],
         "total": 10
@@ -1208,7 +1220,39 @@ GET /home?id=1&search=john
                     "education": "Bachelor's Degree",
                     "occupation": "Engineer"
                 },
-                "images": []
+                "images": [],
+                "profile_completion": {
+                    "filled_fields": 45,
+                    "total_fields": 70,
+                    "percentage": 64.29,
+                    "missing_fields": [
+                        "education_category",
+                        "annual_income",
+                        "about_me",
+                        "about_my_family",
+                        "fewlines_about_my_partner",
+                        "dosham",
+                        "star_nakshatram",
+                        "rasi",
+                        "gothram",
+                        "preferred_age_min",
+                        "preferred_age_max",
+                        "preferred_height_min",
+                        "preferred_height_max",
+                        "preferred_mother_tongue",
+                        "preferred_subcaste",
+                        "preferred_citizenship",
+                        "preferred_education",
+                        "preferred_employed_in",
+                        "preferred_occupation",
+                        "preferred_annual_income_min",
+                        "preferred_annual_income_max",
+                        "preferred_country",
+                        "preferred_eating_habit",
+                        "preferred_drinking_habit",
+                        "preferred_smoking_habit"
+                    ]
+                }
             }
         ],
         "total": 1
@@ -1228,6 +1272,24 @@ GET /home?id=1&search=john
     "message": "Home profiles retrieved successfully"
 }
 ```
+
+**Profile Completion Tracking:**
+Each profile in the response includes a `profile_completion` object that provides:
+- `filled_fields`: Number of profile fields that have been filled (not null, not empty, not '0')
+- `total_fields`: Total number of profile fields being tracked (70 fields)
+- `percentage`: Completion percentage rounded to 2 decimal places
+- `missing_fields`: Array of field names that are still empty or need to be updated
+
+**All Profile Fields Tracked:**
+The completion calculation tracks all 70 profile fields including:
+- Basic Information (name, gender, dob, etc.)
+- Location fields (country, state, city - living and birth)
+- Education & Career fields
+- Family details
+- About sections
+- Astrology fields
+- Personal habits
+- All partner preference fields
 
 ---
 
