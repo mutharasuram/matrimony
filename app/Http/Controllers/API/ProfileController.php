@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Models\Profile;
 use App\Models\ProfileImg;
 use App\Models\User;
+use App\Models\Interest;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\Shortlist;
@@ -275,9 +276,11 @@ class ProfileController extends BaseController
         try {
             $validatedData = $request->validate([
                 'user_id' => 'required|exists:users,id',
+                'current_user_id' => 'nullable|exists:users,id',
             ]);
 
             $userId = $request->user_id;
+            $currentUserId = $request->current_user_id;
 
             // Get user with profile and images
             $user = User::with(['profile.images'])
@@ -489,6 +492,25 @@ class ProfileController extends BaseController
                     'percentage' => 0,
                     'missing_fields' => $allProfileFields
                 ];
+            }
+
+            // Add interest information if current_user_id is provided
+            if ($currentUserId) {
+                $interest = Interest::where('sender_id', $currentUserId)
+                    ->where('receiver_id', $userId)
+                    ->first();
+                
+                $userData['has_sent_interest'] = $interest !== null;
+                
+                // Also add interest status if interest exists
+                if ($interest) {
+                    $userData['interest_status'] = $interest->status; // pending, accepted, declined, replied
+                } else {
+                    $userData['interest_status'] = null;
+                }
+            } else {
+                $userData['has_sent_interest'] = false;
+                $userData['interest_status'] = null;
             }
 
             return $this->sendResponse($userData, 'User details retrieved successfully!');

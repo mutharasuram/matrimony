@@ -788,12 +788,14 @@ profile_img[]: [file1.jpg, file2.jpg, file3.jpg]
 **Request Body:**
 ```json
 {
-    "user_id": 1
+    "user_id": 1,
+    "current_user_id": 2
 }
 ```
 
 **Validation Rules:**
 - `user_id`: required|exists:users,id
+- `current_user_id`: optional|exists:users,id (used to check if current user sent interest to the retrieved user)
 
 **Response:**
 ```json
@@ -905,7 +907,9 @@ profile_img[]: [file1.jpg, file2.jpg, file3.jpg]
                 "preferred_drinking_habit",
                 "preferred_smoking_habit"
             ]
-        }
+        },
+        "has_sent_interest": true,
+        "interest_status": "pending"
     },
     "message": "User details retrieved successfully!"
 }
@@ -955,7 +959,9 @@ The completion calculation tracks all 70 profile fields including:
                 "dob",
                 "... (all 70 fields)"
             ]
-        }
+        },
+        "has_sent_interest": false,
+        "interest_status": null
     },
     "message": "User details retrieved successfully!"
 }
@@ -1079,7 +1085,8 @@ GET /matches?type=interested&id=1&search=mv123
                         "img_path": "profile_images/jane1.jpg",
                         "full_url": "http://your-domain.com/storage/app/public/profile_images/jane1.jpg"
                     }
-                ]
+                ],
+                "interest_status": "pending"
             }
         ],
         "pagination": {
@@ -1113,6 +1120,21 @@ GET /matches?type=interested&id=1&search=mv123
     "message": "Matches retrieved successfully"
 }
 ```
+
+**Interest Status Field:**
+The `interest_status` field is included in the response for the following match types:
+- `matches`: Shows the interest status if the current user has sent interest to the matched user
+- `interested`: Shows the interest status from the interest record (pending, accepted, declined, or replied)
+- `interested_by`: Shows the interest status from the interest record (pending, accepted, declined, or replied)
+
+**Interest Status Values:**
+- `"pending"`: Interest sent but not yet responded to
+- `"accepted"`: Interest has been accepted
+- `"declined"`: Interest has been declined
+- `"replied"`: Interest has been replied to
+- `null`: No interest relationship exists (only for `matches` type)
+
+**Note:** For `just_joined`, `nearby`, `shortlisted`, and `shortlisted_by` types, the `interest_status` field is not included in the response.
 
 ---
 

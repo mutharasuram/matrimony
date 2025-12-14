@@ -147,9 +147,28 @@ class MatchesService
         
         $users = $query->orderBy('created_at', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
+        
+        // Get interest statuses for all matched users
+        $userIds = collect($users->items())->pluck('id')->toArray();
+        $interests = collect();
+        
+        if (!empty($userIds)) {
+            $interests = Interest::where('sender_id', $id)
+                ->whereIn('receiver_id', $userIds)
+                ->get()
+                ->keyBy('receiver_id');
+        }
+        
+        // Add interest_status to each user
+        $data = collect($users->items())->map(function ($user) use ($interests) {
+            $userArray = is_object($user) && method_exists($user, 'toArray') ? $user->toArray() : (array)$user;
+            $interest = $interests->get($user->id);
+            $userArray['interest_status'] = $interest ? $interest->status : null; // pending, accepted, declined, or null
+            return $userArray;
+        })->toArray();
             
         return [
-            'data' => $users->items(),
+            'data' => $data,
             'pagination' => [
                 'current_page' => $users->currentPage(),
                 'per_page' => $users->perPage(),
@@ -344,7 +363,11 @@ class MatchesService
         $interested = $query->paginate($perPage, ['*'], 'page', $page);
             
         $data = $interested->map(function ($item) {
-            return $item->receiver;
+            $user = $item->receiver;
+            $userArray = is_object($user) && method_exists($user, 'toArray') ? $user->toArray() : (array)$user;
+            // Add interest status from the interest record
+            $userArray['interest_status'] = $item->status; // pending, accepted, declined, replied
+            return $userArray;
         });
 
         return [
@@ -375,7 +398,11 @@ class MatchesService
         $interested = $query->paginate($perPage, ['*'], 'page', $page);
             
         $data = $interested->map(function ($item) {
-            return $item->sender;
+            $user = $item->sender;
+            $userArray = is_object($user) && method_exists($user, 'toArray') ? $user->toArray() : (array)$user;
+            // Add interest status from the interest record
+            $userArray['interest_status'] = $item->status; // pending, accepted, declined, replied
+            return $userArray;
         });
 
         return [
@@ -400,7 +427,7 @@ class MatchesService
      */
     public function getHomeProfiles($id, $searchParams = [])
     {
-        $userData = User::with('profile')->where('id', $id)->first();
+        $userData = User::with('profile', 'profile.images')->where('id', $id)->first();
         
         if (!$userData || !$userData->profile) {
             return [
@@ -428,6 +455,7 @@ class MatchesService
 
         return [
             'data' => $users->values()->all(),
+            'user' => $userData,
             'total' => $users->count()
         ];
     }

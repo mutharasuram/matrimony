@@ -111,6 +111,7 @@ class MatchesController extends BaseController
                     return $this->formatUserWithProfileCompletion($user);
                 }, $profiles['data']);
             }
+            $profiles['user'] = $this->formatUserWithProfileCompletion($profiles['user']);
 
             return $this->sendResponse($profiles, 'Home profiles retrieved successfully.');
             
