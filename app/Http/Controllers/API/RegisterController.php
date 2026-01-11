@@ -12,7 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
 use App\Services\MatchesService;
-use Illuminate\Support\Facades\Validator ;
+use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends BaseController
 {
@@ -32,7 +32,7 @@ class RegisterController extends BaseController
     /**
      * Register api
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function register(Request $request): JsonResponse
     {
@@ -73,6 +73,7 @@ class RegisterController extends BaseController
                 'family_type' => 'required|in:joint_family,nuclear_family,small_family',
                 'about_me' => 'nullable|string',
                 'dosham' => 'required|in:yes,no,donot_know',
+                'dosham_value' => 'nullable|string|max:255',
                 'star_nakshatram' => 'nullable|string|max:255',
                 'rasi' => 'nullable|string|max:255',
                 'gothram' => 'nullable|string|max:255',
@@ -99,6 +100,7 @@ class RegisterController extends BaseController
                 'preferred_physical_status' => 'nullable|string|max:255',
                 'preferred_mother_tongue' => 'nullable|string|max:255',
                 'preferred_subcaste' => 'nullable|string|max:255',
+                'preferred_subcaste_details' => 'nullable|string|max:255',
                 'preferred_chevvai_dosham' => 'nullable|string|max:255',
                 'preferred_education' => 'nullable|string|max:255',
                 'preferred_employed_in' => 'nullable|string|max:255',
@@ -159,6 +161,7 @@ class RegisterController extends BaseController
                 'family_type',
                 'about_me',
                 'dosham',
+                'dosham_value',
                 'star_nakshatram',
                 'rasi',
                 'gothram',
@@ -185,6 +188,7 @@ class RegisterController extends BaseController
                 'preferred_physical_status',
                 'preferred_mother_tongue',
                 'preferred_subcaste',
+                'preferred_subcaste_details',
                 'preferred_chevvai_dosham',
                 'preferred_education',
                 'preferred_employed_in',
@@ -214,8 +218,9 @@ class RegisterController extends BaseController
             ]);
             $profileData['user_id'] = $user->id;
             Profile::create($profileData);
+            /** @var User $user */
             $success['token'] =  $user->createToken('auth_token')->plainTextToken;
-            $success['user'] =  User::with('profile','profile.images')->where('id', $user->id)->first();
+            $success['user'] =  User::with('profile', 'profile.images')->where('id', $user->id)->first();
             // $success['list'] = $this->matchesService->getJustJoined($user->id);
             DB::commit();
             return $this->sendResponse($success, 'User register successfully.');
@@ -228,27 +233,30 @@ class RegisterController extends BaseController
     /**
      * Login api
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function login(Request $request): JsonResponse
     {
         try {
             if (Auth::attempt(['email' => $request->value, 'password' => $request->password])) {
                 $user = Auth::user();
+                /** @var User $user */
                 $success['token'] =  $user->createToken('auth_token')->plainTextToken;
-                $success['user'] =  User::with('profile','profile.images')->where('id', $user->id)->first();
+                $success['user'] =  User::with('profile', 'profile.images')->where('id', $user->id)->first();
                 // $success['list'] = $this->matchesService->getJustJoined($user->id);
                 return $this->sendResponse($success, 'User login successfully.');
             } else if (Auth::attempt(['m_id' => $request->value, 'password' => $request->password])) {
                 $user = Auth::user();
+                /** @var User $user */
                 $success['token'] =  $user->createToken('auth_token')->plainTextToken;
-                $success['user'] =  User::with('profile','profile.images')->where('id', $user->id)->first();
+                $success['user'] =  User::with('profile', 'profile.images')->where('id', $user->id)->first();
                 // $success['list'] = $this->matchesService->getJustJoined($user->id);
                 return $this->sendResponse($success, 'User login successfully.');
             } else if (Auth::attempt(['mobile' => $request->value, 'password' => $request->password])) {
                 $user = Auth::user();
+                /** @var User $user */
                 $success['token'] =  $user->createToken('auth_token')->plainTextToken;
-                $success['user'] =  User::with('profile','profile.images')->where('id', $user->id)->first();
+                $success['user'] =  User::with('profile', 'profile.images')->where('id', $user->id)->first();
                 // $success['list'] = $this->matchesService->getJustJoined($user->id);
                 return $this->sendResponse($success, 'User login successfully.');
             } else {
@@ -261,59 +269,59 @@ class RegisterController extends BaseController
 
     public function sendSms(Request $request)
     {
-       // try {
-            $apiKey = env('FAST2SMS_API_KEY');
-            $url = "https://www.fast2sms.com/dev/bulkV2"; 
-    
-            $otp = rand(100000, 999999); 
-            $fields = [
-                "route" => "dlt",
-                "sender_id" => "LKGBUS", 
-                "message" => "168388",
-                "variables_values" => $otp,
-                "flash" => 0,
-                "numbers" => $request->mobile 
-            ];
-            $response = Http::withHeaders([
-                "authorization" => $apiKey,
-                "Content-Type" => "application/json"
-            ])->post($url, $fields);
+        // try {
+        $apiKey = env('FAST2SMS_API_KEY');
+        $url = "https://www.fast2sms.com/dev/bulkV2";
 
-    
-            $responseBody = json_decode($response->body(), true);
-    
-            if (!$responseBody) {
-                return response()->json([
-                    "success" => false,
-                    "message" => "Invalid API Response",
-                    "data" => [
-                        "error" => "Fast2SMS did not return valid JSON",
-                        "raw_response" => $response->body()
-                    ]
-                ], 400);
-            }
-    
-            // Check if SMS was sent successfully
-            if (isset($responseBody['return']) && $responseBody['return']) {
-                // Store OTP in database
-                Otp::where('mobile', $request->mobile)->delete();
-                Otp::create(['mobile' => $request->mobile, 'otp' => $otp]);
-    
-                return response()->json([
-                    "success" => true,
-                    "message" => "OTP sent successfully",
-                    "data" => $responseBody
-                ]);
-            } else {
-                return response()->json([
-                    "success" => false,
-                    "message" => "Failed to send OTP",
-                    "data" => [
-                        "error" => $responseBody['message'] ?? "Unknown Error",
-                        "full_response" => $responseBody
-                    ]
-                ], 400);
-            }
+        $otp = rand(100000, 999999);
+        $fields = [
+            "route" => "dlt",
+            "sender_id" => "LKGBUS",
+            "message" => "168388",
+            "variables_values" => $otp,
+            "flash" => 0,
+            "numbers" => $request->mobile
+        ];
+        $response = Http::withHeaders([
+            "authorization" => $apiKey,
+            "Content-Type" => "application/json"
+        ])->post($url, $fields);
+
+
+        $responseBody = json_decode($response->body(), true);
+
+        if (!$responseBody) {
+            return response()->json([
+                "success" => false,
+                "message" => "Invalid API Response",
+                "data" => [
+                    "error" => "Fast2SMS did not return valid JSON",
+                    "raw_response" => $response->body()
+                ]
+            ], 400);
+        }
+
+        // Check if SMS was sent successfully
+        if (isset($responseBody['return']) && $responseBody['return']) {
+            // Store OTP in database
+            Otp::where('mobile', $request->mobile)->delete();
+            Otp::create(['mobile' => $request->mobile, 'otp' => $otp]);
+
+            return response()->json([
+                "success" => true,
+                "message" => "OTP sent successfully",
+                "data" => $responseBody
+            ]);
+        } else {
+            return response()->json([
+                "success" => false,
+                "message" => "Failed to send OTP",
+                "data" => [
+                    "error" => $responseBody['message'] ?? "Unknown Error",
+                    "full_response" => $responseBody
+                ]
+            ], 400);
+        }
         // } catch (\Exception $e) {
         //     return response()->json([
         //         "success" => false,
@@ -322,7 +330,7 @@ class RegisterController extends BaseController
         //     ]);
         // }
     }
-    
+
     public function verifyOtp(Request $request)
     {
         try {
@@ -406,16 +414,16 @@ class RegisterController extends BaseController
             return $this->sendError('Error', ['error' => $e->getMessage()]);
         }
     }
-    
+
     public function getUserDetails($id)
     {
         try {
             $user = User::with(['profile', 'profile.images'])->find($id);
-    
+
             if (!$user) {
                 return $this->sendError('User not found.', ['error' => 'User does not exist.']);
             }
-    
+
             return $this->sendResponse($user, 'User details retrieved successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Error', ['error' => $e->getMessage()]);
@@ -425,7 +433,7 @@ class RegisterController extends BaseController
     /**
      * Update profile api
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function updateProfile(Request $request): JsonResponse
     {
@@ -464,6 +472,7 @@ class RegisterController extends BaseController
                 'family_type' => 'nullable|in:joint_family,nuclear_family,small_family',
                 'about_me' => 'nullable|string',
                 'dosham' => 'nullable|in:yes,no,donot_know',
+                'dosham_value' => 'nullable|string|max:255',
                 'star_nakshatram' => 'nullable|string|max:255',
                 'rasi' => 'nullable|string|max:255',
                 'gothram' => 'nullable|string|max:255',
@@ -490,6 +499,7 @@ class RegisterController extends BaseController
                 'preferred_physical_status' => 'nullable|string|max:255',
                 'preferred_mother_tongue' => 'nullable|string|max:255',
                 'preferred_subcaste' => 'nullable|string|max:255',
+                'preferred_subcaste_details' => 'nullable|string|max:255',
                 'preferred_chevvai_dosham' => 'nullable|string|max:255',
                 'preferred_education' => 'nullable|string|max:255',
                 'preferred_employed_in' => 'nullable|string|max:255',
@@ -556,6 +566,7 @@ class RegisterController extends BaseController
                 'family_type',
                 'about_me',
                 'dosham',
+                'dosham_value',
                 'star_nakshatram',
                 'rasi',
                 'gothram',
@@ -582,6 +593,7 @@ class RegisterController extends BaseController
                 'preferred_physical_status',
                 'preferred_mother_tongue',
                 'preferred_subcaste',
+                'preferred_subcaste_details',
                 'preferred_chevvai_dosham',
                 'preferred_education',
                 'preferred_employed_in',
@@ -604,14 +616,14 @@ class RegisterController extends BaseController
             ]);
 
             // Remove null values to avoid overwriting existing data with null
-            $profileData = array_filter($profileData, function($value) {
+            $profileData = array_filter($profileData, function ($value) {
                 return $value !== null;
             });
 
             $profile->update($profileData);
-            
-            $success['user'] = User::with('profile','profile.images')->where('id', $user->id)->first();
-            
+
+            $success['user'] = User::with('profile', 'profile.images')->where('id', $user->id)->first();
+
             DB::commit();
             return $this->sendResponse($success, 'Profile updated successfully.');
         } catch (\Exception $e) {

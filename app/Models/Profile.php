@@ -75,14 +75,16 @@ class Profile extends Model
         'food',
         // New fields from migration
         'about_my_family',
-        'fewlines_about_my_partner'
+        'fewlines_about_my_partner',
+        'dosham_value',
+        'preferred_subcaste_details'
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-    
+
     public function images()
     {
         return $this->hasMany(ProfileImg::class, 'profile_id');

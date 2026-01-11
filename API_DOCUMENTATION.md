@@ -69,6 +69,7 @@ All API responses follow a consistent format:
     "about_my_family": "We are a close-knit family",
     "fewlines_about_my_partner": "Looking for someone caring and understanding",
     "dosham": "no",
+    "dosham_value": "None",
     "star_nakshatram": "Rohini",
     "rasi": "Taurus",
     "gothram": "Bharadwaja",
@@ -93,6 +94,7 @@ All API responses follow a consistent format:
     "preferred_physical_status": "normal",
     "preferred_mother_tongue": "English",
     "preferred_subcaste": "Brahmin",
+    "preferred_subcaste_details": "Iyer",
     "preferred_chevvai_dosham": "no",
     "preferred_education": "Bachelor's Degree",
     "preferred_employed_in": "Private",
@@ -145,6 +147,7 @@ All API responses follow a consistent format:
 - `family_type`: required|in:joint_family,nuclear_family
 - `about_me`: nullable|string
 - `dosham`: required|in:yes,no,donot_know
+- `dosham_value`: nullable|string|max:255
 - `star_nakshatram`: nullable|string|max:255
 - `rasi`: nullable|string|max:255
 - `gothram`: nullable|string|max:255
@@ -169,6 +172,7 @@ All API responses follow a consistent format:
 - `preferred_physical_status`: nullable|string|max:255
 - `preferred_mother_tongue`: nullable|string|max:255
 - `preferred_subcaste`: nullable|string|max:255
+- `preferred_subcaste_details`: nullable|string|max:255
 - `preferred_chevvai_dosham`: nullable|string|max:255
 - `preferred_education`: nullable|string|max:255
 - `preferred_employed_in`: nullable|string|max:255
@@ -428,6 +432,8 @@ All API responses follow a consistent format:
     "name": "John Smith",
     "height": "5'9\"",
     "about_me": "Updated about me section",
+    "dosham": "yes",
+    "dosham_value": "Chevvai Dosham",
     "father_occupation": "Engineer",
     "mother_occupation": "Teacher",
     "no_of_brothers": 1,
@@ -440,6 +446,7 @@ All API responses follow a consistent format:
     "preferred_physical_status": "normal",
     "preferred_mother_tongue": "English",
     "preferred_subcaste": "Brahmin",
+    "preferred_subcaste_details": "Iyer",
     "preferred_chevvai_dosham": "no",
     "preferred_education": "Bachelor's Degree",
     "preferred_employed_in": "Private",
@@ -486,6 +493,8 @@ All API responses follow a consistent format:
                 "name": "John Smith",
                 "height": "5'9\"",
                 "about_me": "Updated about me section",
+                "dosham": "yes",
+                "dosham_value": "Chevvai Dosham",
                 "father_occupation": "Engineer",
                 "mother_occupation": "Teacher",
                 "no_of_brothers": 1,
@@ -498,6 +507,7 @@ All API responses follow a consistent format:
                 "preferred_physical_status": "normal",
                 "preferred_mother_tongue": "English",
                 "preferred_subcaste": "Brahmin",
+                "preferred_subcaste_details": "Iyer",
                 "preferred_chevvai_dosham": "no",
                 "preferred_education": "Bachelor's Degree",
                 "preferred_employed_in": "Private",
@@ -574,6 +584,7 @@ All API responses follow a consistent format:
     "about_my_family": "We are a close-knit family",
     "fewlines_about_my_partner": "Looking for someone caring and understanding",
     "dosham": "no",
+    "dosham_value": "None",
     "star_nakshatram": "Rohini",
     "rasi": "Taurus",
     "gothram": "Bharadwaja",
@@ -640,6 +651,7 @@ All API responses follow a consistent format:
 - `family_type`: sometimes|in:joint_family,nuclear_family
 - `about_me`: nullable|string
 - `dosham`: sometimes|in:yes,no,donot_know
+- `dosham_value`: nullable|string|max:255
 - `star_nakshatram`: nullable|string|max:255
 - `rasi`: nullable|string|max:255
 - `gothram`: nullable|string|max:255

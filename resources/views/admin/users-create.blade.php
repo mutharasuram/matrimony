@@ -7,13 +7,13 @@
 @section('admin-content')
 <div class="space-y-6">
     @if ($errors->any())
-        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            <ul class="list-disc pl-5 space-y-1">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
+    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <ul class="list-disc pl-5 space-y-1">
+            @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
     @endif
 
     <form method="POST" action="{{ route('admin.users.store') }}" enctype="multipart/form-data" class="bg-white rounded-lg shadow-sm p-6 space-y-8">
@@ -84,6 +84,10 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Subcaste</label>
                     <input type="text" name="subcaste" value="{{ old('subcaste') }}" class="w-full px-4 py-2 border rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Subcaste Details</label>
+                    <input type="text" name="sub_caste_details" value="{{ old('sub_caste_details') }}" class="w-full px-4 py-2 border rounded-md">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Willing to marry from subcaste</label>
@@ -179,13 +183,17 @@
                     <input type="text" name="dosham" value="{{ old('dosham') }}" class="w-full px-4 py-2 border rounded-md">
                 </div>
                 <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Dosham Value</label>
+                    <input type="text" name="dosham_value" value="{{ old('dosham_value') }}" class="w-full px-4 py-2 border rounded-md">
+                </div>
+                <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Star/Nakshatram</label>
                     <select name="star_nakshatram" class="w-full px-4 py-2 border rounded-md">
                         <option value="">Select Star</option>
                         @if(isset($stars))
-                            @foreach($stars as $star)
-                                <option value="{{ $star }}" {{ old('star_nakshatram')===$star ? 'selected' : '' }}>{{ $star }}</option>
-                            @endforeach
+                        @foreach($stars as $star)
+                        <option value="{{ $star }}" {{ old('star_nakshatram')===$star ? 'selected' : '' }}>{{ $star }}</option>
+                        @endforeach
                         @endif
                     </select>
                 </div>
@@ -194,9 +202,9 @@
                     <select name="rasi" class="w-full px-4 py-2 border rounded-md">
                         <option value="">Select Rasi</option>
                         @if(isset($rasis))
-                            @foreach($rasis as $rasi)
-                                <option value="{{ $rasi }}" {{ old('rasi')===$rasi ? 'selected' : '' }}>{{ $rasi }}</option>
-                            @endforeach
+                        @foreach($rasis as $rasi)
+                        <option value="{{ $rasi }}" {{ old('rasi')===$rasi ? 'selected' : '' }}>{{ $rasi }}</option>
+                        @endforeach
                         @endif
                     </select>
                 </div>
@@ -308,6 +316,10 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Subcaste</label>
                     <input type="text" name="preferred_subcaste" value="{{ old('preferred_subcaste') }}" class="w-full px-4 py-2 border rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Subcaste Details</label>
+                    <input type="text" name="preferred_subcaste_details" value="{{ old('preferred_subcaste_details') }}" class="w-full px-4 py-2 border rounded-md">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Chevvai Dosham</label>

@@ -32,11 +32,11 @@ class MatchesController extends BaseController
 
             $type = $validatedData['type'];
             $userId = $validatedData['id'];
-            
+
             // Get pagination parameters
             $perPage = $request->get('per_page', 15);
             $page = $request->get('page', 1);
-            
+
             // Validate pagination parameters
             $perPage = max(1, min(100, (int)$perPage)); // Limit between 1-100
             $page = max(1, (int)$page);
@@ -64,16 +64,15 @@ class MatchesController extends BaseController
                     break;
                 case 'interested':
                     $matches = $this->matchesService->getInterested($userId, $perPage, $page, $searchParams);
-                    break; 
+                    break;
                 case 'interested_by':
                     $matches = $this->matchesService->getInterestedBy($userId, $perPage, $page, $searchParams);
-                    break;    
+                    break;
                 default:
                     return $this->sendError('Invalid match type.', [], 400);
             }
 
             return $this->sendResponse($matches, ucfirst(str_replace('_', ' ', $type)) . ' retrieved successfully.');
-            
         } catch (\Illuminate\Validation\ValidationException $e) {
             return $this->sendError('Validation Error', $e->errors(), 422);
         } catch (\Exception $e) {
@@ -114,7 +113,6 @@ class MatchesController extends BaseController
             $profiles['user'] = $this->formatUserWithProfileCompletion($profiles['user']);
 
             return $this->sendResponse($profiles, 'Home profiles retrieved successfully.');
-            
         } catch (\Illuminate\Validation\ValidationException $e) {
             return $this->sendError('Validation Error', $e->errors(), 422);
         } catch (\Exception $e) {
@@ -133,39 +131,87 @@ class MatchesController extends BaseController
         // Define all profile fields for completion tracking
         $allProfileFields = [
             // Basic Information
-            'profile_created_by', 'gender', 'name', 'dob', 'mother_tongue',
-            'subcaste', 'sub_caste_details', 'willing_to_marry_from_subcaste',
-            'marital_status', 'height', 'physical_status',
+            'profile_created_by',
+            'gender',
+            'name',
+            'dob',
+            'mother_tongue',
+            'subcaste',
+            'sub_caste_details',
+            'willing_to_marry_from_subcaste',
+            'marital_status',
+            'height',
+            'physical_status',
             // Location
-            'country_living_in', 'residing_state', 'residing_city', 'citizenship',
-            'country_of_birth', 'state_of_birth', 'city_of_birth',
+            'country_living_in',
+            'residing_state',
+            'residing_city',
+            'citizenship',
+            'country_of_birth',
+            'state_of_birth',
+            'city_of_birth',
             // Education & Career
-            'education', 'education_category', 'employed_in', 'occupation',
-            'annual_income', 'income',
+            'education',
+            'education_category',
+            'employed_in',
+            'occupation',
+            'annual_income',
+            'income',
             // Family
-            'family_status', 'family_type', 'father_occupation', 'mother_occupation',
-            'no_of_brothers', 'no_of_sisters',
+            'family_status',
+            'family_type',
+            'father_occupation',
+            'mother_occupation',
+            'no_of_brothers',
+            'no_of_sisters',
             // About
-            'about_me', 'about_my_family', 'fewlines_about_my_partner',
+            'about_me',
+            'about_my_family',
+            'fewlines_about_my_partner',
             // Astrology
-            'dosham', 'star_nakshatram', 'rasi', 'gothram', 'time_of_birth',
+            'dosham',
+            'dosham_value',
+            'star_nakshatram',
+            'rasi',
+            'gothram',
+            'time_of_birth',
             'horoscope_chart_style',
             // Habits
-            'eating_habit', 'drinking_habit', 'smoking_habit', 'habit',
-            'hobbies_and_interests', 'music', 'sports', 'food',
+            'eating_habit',
+            'drinking_habit',
+            'smoking_habit',
+            'habit',
+            'hobbies_and_interests',
+            'music',
+            'sports',
+            'food',
             // Partner Preferences - Age & Physical
-            'preferred_age_min', 'preferred_age_max', 'preferred_height_min',
-            'preferred_height_max', 'preferred_marital_status', 'preferred_physical_status',
+            'preferred_age_min',
+            'preferred_age_max',
+            'preferred_height_min',
+            'preferred_height_max',
+            'preferred_marital_status',
+            'preferred_physical_status',
             // Partner Preferences - Background
-            'preferred_mother_tongue', 'preferred_subcaste', 'preferred_chevvai_dosham',
+            'preferred_mother_tongue',
+            'preferred_subcaste',
+            'preferred_subcaste_details',
+            'preferred_chevvai_dosham',
             'preferred_citizenship',
             // Partner Preferences - Education & Career
-            'preferred_education', 'preferred_employed_in', 'preferred_occupation',
-            'preferred_annual_income_min', 'preferred_annual_income_max',
+            'preferred_education',
+            'preferred_employed_in',
+            'preferred_occupation',
+            'preferred_annual_income_min',
+            'preferred_annual_income_max',
             'preferred_country',
             // Partner Preferences - Habits
-            'preferred_eating_habit', 'preferred_drinking_habit', 'preferred_smoking_habit',
-            'preferred_hobbies_and_interests', 'preferred_music', 'preferred_sports',
+            'preferred_eating_habit',
+            'preferred_drinking_habit',
+            'preferred_smoking_habit',
+            'preferred_hobbies_and_interests',
+            'preferred_music',
+            'preferred_sports',
             'preferred_food',
             // Other
             'isEligible'
@@ -190,13 +236,13 @@ class MatchesController extends BaseController
         // Calculate profile completion if profile exists
         if ($profile) {
             // Convert profile to array if it's a model
-            $profileArray = is_object($profile) && method_exists($profile, 'toArray') 
-                ? $profile->toArray() 
+            $profileArray = is_object($profile) && method_exists($profile, 'toArray')
+                ? $profile->toArray()
                 : (array)$profile;
-            
+
             $filledFields = 0;
             $missingFields = [];
-            
+
             foreach ($allProfileFields as $field) {
                 $value = $profileArray[$field] ?? null;
                 if ($value !== null && $value !== '' && $value !== '0') {
@@ -205,9 +251,9 @@ class MatchesController extends BaseController
                     $missingFields[] = $field;
                 }
             }
-            
-            $percentage = count($allProfileFields) > 0 
-                ? round(($filledFields / count($allProfileFields)) * 100, 2) 
+
+            $percentage = count($allProfileFields) > 0
+                ? round(($filledFields / count($allProfileFields)) * 100, 2)
                 : 0;
 
             $profileCompletion = [
@@ -239,10 +285,10 @@ class MatchesController extends BaseController
 
         if (!empty($images)) {
             // Convert collection to array if needed
-            $imagesArray = is_object($images) && method_exists($images, 'toArray') 
-                ? $images->toArray() 
+            $imagesArray = is_object($images) && method_exists($images, 'toArray')
+                ? $images->toArray()
                 : (is_array($images) ? $images : []);
-            
+
             $userArray['images'] = array_map(function ($image) {
                 $imgArray = is_object($image) && method_exists($image, 'toArray') ? $image->toArray() : (array)$image;
                 if (!isset($imgArray['full_url']) && isset($imgArray['img_path'])) {

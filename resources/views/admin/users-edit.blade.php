@@ -7,17 +7,17 @@
 @section('admin-content')
 <div class="space-y-6">
     @if ($errors->any())
-        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            <ul class="list-disc pl-5 space-y-1">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
+    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <ul class="list-disc pl-5 space-y-1">
+            @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
     @endif
 
     @if(session('success'))
-        <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded">{{ session('success') }}</div>
+    <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded">{{ session('success') }}</div>
     @endif
 
     <form method="POST" action="{{ route('admin.users.update', $user->id) }}" enctype="multipart/form-data" class="bg-white rounded-lg shadow-sm p-6 space-y-8">
@@ -62,7 +62,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Profile Created By</label>
                     <select name="profile_created_by" class="w-full px-4 py-2 border rounded-md" required>
                         @foreach(['self','parent','sibling','relative','friend'] as $opt)
-                            <option value="{{ $opt }}" {{ old('profile_created_by', $p->profile_created_by ?? '')===$opt ? 'selected' : '' }}>{{ ucfirst($opt) }}</option>
+                        <option value="{{ $opt }}" {{ old('profile_created_by', $p->profile_created_by ?? '')===$opt ? 'selected' : '' }}>{{ ucfirst($opt) }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -70,7 +70,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
                     <select name="gender" class="w-full px-4 py-2 border rounded-md" required>
                         @foreach(['male','female'] as $g)
-                            <option value="{{ $g }}" {{ old('gender', $p->gender ?? '')===$g ? 'selected' : '' }}>{{ ucfirst($g) }}</option>
+                        <option value="{{ $g }}" {{ old('gender', $p->gender ?? '')===$g ? 'selected' : '' }}>{{ ucfirst($g) }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -91,10 +91,14 @@
                     <input type="text" name="subcaste" value="{{ old('subcaste', $p->subcaste ?? '') }}" class="w-full px-4 py-2 border rounded-md">
                 </div>
                 <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Subcaste Details</label>
+                    <input type="text" name="sub_caste_details" value="{{ old('sub_caste_details', $p->sub_caste_details ?? '') }}" class="w-full px-4 py-2 border rounded-md">
+                </div>
+                <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Willing to marry from subcaste</label>
                     <select name="willing_to_marry_from_subcaste" class="w-full px-4 py-2 border rounded-md" required>
                         @foreach(['yes','no'] as $opt)
-                            <option value="{{ $opt }}" {{ old('willing_to_marry_from_subcaste', $p->willing_to_marry_from_subcaste ?? '')===$opt ? 'selected' : '' }}>{{ ucfirst($opt) }}</option>
+                        <option value="{{ $opt }}" {{ old('willing_to_marry_from_subcaste', $p->willing_to_marry_from_subcaste ?? '')===$opt ? 'selected' : '' }}>{{ ucfirst($opt) }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -102,7 +106,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Marital Status</label>
                     <select name="marital_status" class="w-full px-4 py-2 border rounded-md" required>
                         @foreach(['Unmarried','Widower','Divorced','Separated'] as $opt)
-                            <option value="{{ $opt }}" {{ old('marital_status', $p->marital_status ?? '')===$opt ? 'selected' : '' }}>{{ $opt }}</option>
+                        <option value="{{ $opt }}" {{ old('marital_status', $p->marital_status ?? '')===$opt ? 'selected' : '' }}>{{ $opt }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -146,7 +150,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Physical Status</label>
                     <select name="physical_status" class="w-full px-4 py-2 border rounded-md" required>
                         @foreach(['normal','physically_challenged'] as $opt)
-                            <option value="{{ $opt }}" {{ old('physical_status', $p->physical_status ?? '')===$opt ? 'selected' : '' }}>{{ ucwords(str_replace('_',' ', $opt)) }}</option>
+                        <option value="{{ $opt }}" {{ old('physical_status', $p->physical_status ?? '')===$opt ? 'selected' : '' }}>{{ ucwords(str_replace('_',' ', $opt)) }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -154,7 +158,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Family Status</label>
                     <select name="family_status" class="w-full px-4 py-2 border rounded-md" required>
                         @foreach(['poor','lower_middle','middle_class','upper_middle class','rich_affluent'] as $opt)
-                            <option value="{{ $opt }}" {{ old('family_status', $p->family_status ?? '')===$opt ? 'selected' : '' }}>{{ ucwords($opt) }}</option>
+                        <option value="{{ $opt }}" {{ old('family_status', $p->family_status ?? '')===$opt ? 'selected' : '' }}>{{ ucwords($opt) }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -162,7 +166,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Family Type</label>
                     <select name="family_type" class="w-full px-4 py-2 border rounded-md" required>
                         @foreach(['joint_family','nuclear_family','small_family'] as $opt)
-                            <option value="{{ $opt }}" {{ old('family_type', $p->family_type ?? '')===$opt ? 'selected' : '' }}>{{ ucwords(str_replace('_',' ', $opt)) }}</option>
+                        <option value="{{ $opt }}" {{ old('family_type', $p->family_type ?? '')===$opt ? 'selected' : '' }}>{{ ucwords(str_replace('_',' ', $opt)) }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -183,11 +187,15 @@
                     <input type="text" name="dosham" value="{{ old('dosham', $p->dosham ?? '') }}" class="w-full px-4 py-2 border rounded-md">
                 </div>
                 <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Dosham Value</label>
+                    <input type="text" name="dosham_value" value="{{ old('dosham_value', $p->dosham_value ?? '') }}" class="w-full px-4 py-2 border rounded-md">
+                </div>
+                <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Star/Nakshatram</label>
                     <select name="star_nakshatram" class="w-full px-4 py-2 border rounded-md">
                         <option value="">Select Star</option>
                         @foreach($stars as $star)
-                            <option value="{{ $star }}" {{ old('star_nakshatram', $p->star_nakshatram ?? '')===$star ? 'selected' : '' }}>{{ $star }}</option>
+                        <option value="{{ $star }}" {{ old('star_nakshatram', $p->star_nakshatram ?? '')===$star ? 'selected' : '' }}>{{ $star }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -196,7 +204,7 @@
                     <select name="rasi" class="w-full px-4 py-2 border rounded-md">
                         <option value="">Select Rasi</option>
                         @foreach($rasis as $rasi)
-                            <option value="{{ $rasi }}" {{ old('rasi', $p->rasi ?? '')===$rasi ? 'selected' : '' }}>{{ $rasi }}</option>
+                        <option value="{{ $rasi }}" {{ old('rasi', $p->rasi ?? '')===$rasi ? 'selected' : '' }}>{{ $rasi }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -310,6 +318,10 @@
                     <input type="text" name="preferred_subcaste" value="{{ old('preferred_subcaste', $p->preferred_subcaste ?? '') }}" class="w-full px-4 py-2 border rounded-md">
                 </div>
                 <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Subcaste Details</label>
+                    <input type="text" name="preferred_subcaste_details" value="{{ old('preferred_subcaste_details', $p->preferred_subcaste_details ?? '') }}" class="w-full px-4 py-2 border rounded-md">
+                </div>
+                <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Chevvai Dosham</label>
                     <input type="text" name="preferred_chevvai_dosham" value="{{ old('preferred_chevvai_dosham', $p->preferred_chevvai_dosham ?? '') }}" class="w-full px-4 py-2 border rounded-md">
                 </div>
@@ -385,18 +397,18 @@
             <p class="text-xs text-gray-500 mt-2">You can upload multiple images. Max 2MB each.</p>
 
             @if($user->profile && $user->profile->images && $user->profile->images->count())
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                    @foreach($user->profile->images as $img)
-                        <div class="border rounded p-2 flex flex-col items-center">
-                            <img src="{{ asset('storage/'.$img->img_path) }}" alt="Profile Image" class="w-full h-32 object-cover rounded">
-                            <form method="POST" action="{{ route('admin.users.images.delete', $img->id) }}" onsubmit="return confirm('Delete this image?');" class="mt-2">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="px-3 py-1 text-xs rounded-md text-white bg-red-600 hover:bg-red-700">Delete</button>
-                            </form>
-                        </div>
-                    @endforeach
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                @foreach($user->profile->images as $img)
+                <div class="border rounded p-2 flex flex-col items-center">
+                    <img src="{{ asset('storage/'.$img->img_path) }}" alt="Profile Image" class="w-full h-32 object-cover rounded">
+                    <form method="POST" action="{{ route('admin.users.images.delete', $img->id) }}" onsubmit="return confirm('Delete this image?');" class="mt-2">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="px-3 py-1 text-xs rounded-md text-white bg-red-600 hover:bg-red-700">Delete</button>
+                    </form>
                 </div>
+                @endforeach
+            </div>
             @endif
         </div>
 

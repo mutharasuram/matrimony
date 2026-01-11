@@ -28,7 +28,7 @@ class AdminController extends Controller
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
-            
+
             // Check if user is admin
             if (!$user->is_admin) {
                 Auth::logout();
@@ -36,9 +36,9 @@ class AdminController extends Controller
                     'email' => 'You do not have admin privileges.',
                 ])->onlyInput('email');
             }
-            
+
             $request->session()->regenerate();
-            
+
             return redirect()->intended(route('admin.dashboard'));
         }
 
@@ -73,18 +73,18 @@ class AdminController extends Controller
         }
 
         $query = $baseQuery->with('profile');
-        
+
         // Search functionality
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('mobile', 'like', "%{$search}%")
-                  ->orWhere('m_id', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('mobile', 'like', "%{$search}%")
+                    ->orWhere('m_id', 'like', "%{$search}%");
             });
         }
-        
+
         // Sort functionality (whitelisted columns)
         $allowedSortColumns = ['name', 'email', 'created_at', 'mobile', 'm_id'];
         $sortBy = $request->get('sort_by', 'created_at');
@@ -94,9 +94,9 @@ class AdminController extends Controller
         $sortOrder = $request->get('sort_order', 'desc');
         $sortOrder = strtolower($sortOrder) === 'asc' ? 'asc' : 'desc';
         $query->orderBy($sortBy, $sortOrder);
-        
+
         $users = $query->paginate(15);
-        
+
         return view('admin.users', compact('users'));
     }
 
@@ -117,7 +117,7 @@ class AdminController extends Controller
             'mobile' => ['required', 'string', 'max:20', Rule::unique('users', 'mobile')],
             'password' => ['required', 'string', 'min:6', 'confirmed'],
             'is_admin' => ['nullable', 'boolean'],
-            
+
             // profile fields
             'profile_created_by' => ['required', Rule::in(['self', 'parent', 'sibling', 'relative', 'friend'])],
             'gender' => ['required', Rule::in(['male', 'female'])],
@@ -125,6 +125,7 @@ class AdminController extends Controller
             'dob' => ['required', 'date'],
             'mother_tongue' => ['required', 'string', 'max:255'],
             'subcaste' => ['nullable', 'string', 'max:255'],
+            'sub_caste_details' => ['nullable', 'string', 'max:255'],
             'willing_to_marry_from_subcaste' => ['required', Rule::in(['yes', 'no'])],
             'marital_status' => ['required', Rule::in(['Unmarried', 'Widower', 'Divorced', 'Separated'])],
             'country_living_in' => ['required', 'string', 'max:255'],
@@ -141,6 +142,7 @@ class AdminController extends Controller
             'family_type' => ['required', Rule::in(['joint_family', 'nuclear_family', 'small_family'])],
             'about_me' => ['nullable', 'string'],
             'dosham' => ['nullable', 'string', 'max:50'],
+            'dosham_value' => ['nullable', 'string', 'max:255'],
             'star_nakshatram' => ['nullable', Rule::in($stars)],
             'rasi' => ['nullable', Rule::in($rasis)],
             'gothram' => ['nullable', 'string', 'max:255'],
@@ -164,6 +166,7 @@ class AdminController extends Controller
             'preferred_physical_status' => ['nullable', 'string', 'max:255'],
             'preferred_mother_tongue' => ['nullable', 'string', 'max:255'],
             'preferred_subcaste' => ['nullable', 'string', 'max:255'],
+            'preferred_subcaste_details' => ['nullable', 'string', 'max:255'],
             'preferred_chevvai_dosham' => ['nullable', 'string', 'max:255'],
             'preferred_education' => ['nullable', 'string', 'max:255'],
             'preferred_employed_in' => ['nullable', 'string', 'max:255'],
@@ -224,6 +227,7 @@ class AdminController extends Controller
         $profile->dob = $validated['dob'];
         $profile->mother_tongue = $validated['mother_tongue'];
         $profile->subcaste = $validated['subcaste'] ?? null;
+        $profile->sub_caste_details = $validated['sub_caste_details'] ?? null;
         $profile->willing_to_marry_from_subcaste = $validated['willing_to_marry_from_subcaste'];
         $profile->marital_status = $validated['marital_status'];
         $profile->country_living_in = $validated['country_living_in'];
@@ -240,6 +244,7 @@ class AdminController extends Controller
         $profile->family_type = $validated['family_type'];
         $profile->about_me = $validated['about_me'] ?? null;
         $profile->dosham = $validated['dosham'] ?? null;
+        $profile->dosham_value = $validated['dosham_value'] ?? null;
         $profile->star_nakshatram = $validated['star_nakshatram'] ?? null;
         $profile->rasi = $validated['rasi'] ?? null;
         $profile->gothram = $validated['gothram'] ?? null;
@@ -262,6 +267,7 @@ class AdminController extends Controller
         $profile->preferred_physical_status = $validated['preferred_physical_status'] ?? null;
         $profile->preferred_mother_tongue = $validated['preferred_mother_tongue'] ?? null;
         $profile->preferred_subcaste = $validated['preferred_subcaste'] ?? null;
+        $profile->preferred_subcaste_details = $validated['preferred_subcaste_details'] ?? null;
         $profile->preferred_chevvai_dosham = $validated['preferred_chevvai_dosham'] ?? null;
         $profile->preferred_education = $validated['preferred_education'] ?? null;
         $profile->preferred_employed_in = $validated['preferred_employed_in'] ?? null;
@@ -329,6 +335,7 @@ class AdminController extends Controller
             'dob' => ['required', 'date'],
             'mother_tongue' => ['required', 'string', 'max:255'],
             'subcaste' => ['nullable', 'string', 'max:255'],
+            'sub_caste_details' => ['nullable', 'string', 'max:255'],
             'willing_to_marry_from_subcaste' => ['required', Rule::in(['yes', 'no'])],
             'marital_status' => ['required', Rule::in(['Unmarried', 'Widower', 'Divorced', 'Separated'])],
             'country_living_in' => ['required', 'string', 'max:255'],
@@ -345,6 +352,7 @@ class AdminController extends Controller
             'family_type' => ['required', Rule::in(['joint_family', 'nuclear_family', 'small_family'])],
             'about_me' => ['nullable', 'string'],
             'dosham' => ['nullable', 'string', 'max:50'],
+            'dosham_value' => ['nullable', 'string', 'max:255'],
             'star_nakshatram' => ['nullable', Rule::in($stars)],
             'rasi' => ['nullable', Rule::in($rasis)],
             'gothram' => ['nullable', 'string', 'max:255'],
@@ -368,6 +376,7 @@ class AdminController extends Controller
             'preferred_physical_status' => ['nullable', 'string', 'max:255'],
             'preferred_mother_tongue' => ['nullable', 'string', 'max:255'],
             'preferred_subcaste' => ['nullable', 'string', 'max:255'],
+            'preferred_subcaste_details' => ['nullable', 'string', 'max:255'],
             'preferred_chevvai_dosham' => ['nullable', 'string', 'max:255'],
             'preferred_education' => ['nullable', 'string', 'max:255'],
             'preferred_employed_in' => ['nullable', 'string', 'max:255'],
@@ -427,6 +436,7 @@ class AdminController extends Controller
         $profile->dob = $validated['dob'];
         $profile->mother_tongue = $validated['mother_tongue'];
         $profile->subcaste = $validated['subcaste'] ?? null;
+        $profile->sub_caste_details = $validated['sub_caste_details'] ?? null;
         $profile->willing_to_marry_from_subcaste = $validated['willing_to_marry_from_subcaste'];
         $profile->marital_status = $validated['marital_status'];
         $profile->country_living_in = $validated['country_living_in'];
@@ -443,6 +453,7 @@ class AdminController extends Controller
         $profile->family_type = $validated['family_type'];
         $profile->about_me = $validated['about_me'] ?? null;
         $profile->dosham = $validated['dosham'] ?? null;
+        $profile->dosham_value = $validated['dosham_value'] ?? null;
         $profile->star_nakshatram = $validated['star_nakshatram'] ?? null;
         $profile->rasi = $validated['rasi'] ?? null;
         $profile->gothram = $validated['gothram'] ?? null;
@@ -465,6 +476,7 @@ class AdminController extends Controller
         $profile->preferred_physical_status = $validated['preferred_physical_status'] ?? null;
         $profile->preferred_mother_tongue = $validated['preferred_mother_tongue'] ?? null;
         $profile->preferred_subcaste = $validated['preferred_subcaste'] ?? null;
+        $profile->preferred_subcaste_details = $validated['preferred_subcaste_details'] ?? null;
         $profile->preferred_chevvai_dosham = $validated['preferred_chevvai_dosham'] ?? null;
         $profile->preferred_education = $validated['preferred_education'] ?? null;
         $profile->preferred_employed_in = $validated['preferred_employed_in'] ?? null;
@@ -557,18 +569,55 @@ class AdminController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        
+
         return redirect()->route('admin.login');
     }
 
     protected function getAstroOptions(): array
     {
         $stars = [
-            'Ashwini','Bharani','Krittika','Rohini','Mrigashira','Ardra','Punarvasu','Pushya','Ashlesha','Magha','Purva Phalguni','Uttara Phalguni','Hasta','Chitra','Swati','Vishakha','Anuradha','Jyeshta','Mula','Purva Ashadha','Uttara Ashadha','Shravana','Dhanishta','Shatabhisha','Purva Bhadrapada','Uttara Bhadrapada','Revati'
+            'Ashwini',
+            'Bharani',
+            'Krittika',
+            'Rohini',
+            'Mrigashira',
+            'Ardra',
+            'Punarvasu',
+            'Pushya',
+            'Ashlesha',
+            'Magha',
+            'Purva Phalguni',
+            'Uttara Phalguni',
+            'Hasta',
+            'Chitra',
+            'Swati',
+            'Vishakha',
+            'Anuradha',
+            'Jyeshta',
+            'Mula',
+            'Purva Ashadha',
+            'Uttara Ashadha',
+            'Shravana',
+            'Dhanishta',
+            'Shatabhisha',
+            'Purva Bhadrapada',
+            'Uttara Bhadrapada',
+            'Revati'
         ];
         $rasis = [
-            'Mesha (Aries)','Vrishabha (Taurus)','Mithuna (Gemini)','Karka (Cancer)','Simha (Leo)','Kanya (Virgo)','Tula (Libra)','Vrishchika (Scorpio)','Dhanu (Sagittarius)','Makara (Capricorn)','Kumbha (Aquarius)','Meena (Pisces)'
+            'Mesha (Aries)',
+            'Vrishabha (Taurus)',
+            'Mithuna (Gemini)',
+            'Karka (Cancer)',
+            'Simha (Leo)',
+            'Kanya (Virgo)',
+            'Tula (Libra)',
+            'Vrishchika (Scorpio)',
+            'Dhanu (Sagittarius)',
+            'Makara (Capricorn)',
+            'Kumbha (Aquarius)',
+            'Meena (Pisces)'
         ];
         return [$stars, $rasis];
     }
-} 
+}
